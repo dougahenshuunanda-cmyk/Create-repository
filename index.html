@@ -10,13 +10,13 @@
 <style>
   :root{
     --bg:#0e1116; --panel:#161b22; --panel2:#1c2230; --text:#e6edf3; --muted:#8b949e;
-    --border:#2a313c; --accent:#58a6ff;
+    --border:#2a313c; --accent:#58a6ff; --warn:#ff5252; --warnbg:#3a1418;
   }
   @media (prefers-color-scheme: light){
-    :root{ --bg:#f4f6f8; --panel:#ffffff; --panel2:#f0f2f5; --text:#1b1f24; --muted:#5b6572; --border:#d7dce2; --accent:#1465c0; }
+    :root{ --bg:#f4f6f8; --panel:#ffffff; --panel2:#f0f2f5; --text:#1b1f24; --muted:#5b6572; --border:#d7dce2; --accent:#1465c0; --warn:#d8291f; --warnbg:#ffe3e1; }
   }
-  :root[data-theme="dark"]{ --bg:#0e1116; --panel:#161b22; --panel2:#1c2230; --text:#e6edf3; --muted:#8b949e; --border:#2a313c; --accent:#58a6ff; }
-  :root[data-theme="light"]{ --bg:#f4f6f8; --panel:#ffffff; --panel2:#f0f2f5; --text:#1b1f24; --muted:#5b6572; --border:#d7dce2; --accent:#1465c0; }
+  :root[data-theme="dark"]{ --bg:#0e1116; --panel:#161b22; --panel2:#1c2230; --text:#e6edf3; --muted:#8b949e; --border:#2a313c; --accent:#58a6ff; --warn:#ff5252; --warnbg:#3a1418; }
+  :root[data-theme="light"]{ --bg:#f4f6f8; --panel:#ffffff; --panel2:#f0f2f5; --text:#1b1f24; --muted:#5b6572; --border:#d7dce2; --accent:#1465c0; --warn:#d8291f; --warnbg:#ffe3e1; }
 
   *{box-sizing:border-box;}
   html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,-apple-system,sans-serif;}
@@ -42,10 +42,23 @@
   #clockbox .lbl{font-size:10px;color:var(--muted);}
   #clockbox .status{font-size:11px;margin-top:3px;color:var(--accent);}
 
+  #banner{
+    position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:500;
+    display:none;flex-direction:column;gap:4px;max-width:min(90vw,520px);
+  }
+  .banner-item{
+    background:var(--warnbg);color:var(--warn);border:1px solid var(--warn);
+    border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;
+    display:flex;align-items:center;gap:8px;box-shadow:0 2px 10px rgba(0,0,0,.25);
+    animation:warnpulse 1.4s ease-in-out infinite;
+  }
+  .banner-item .demo-tag{font-size:9px;font-weight:400;opacity:.85;}
+  @keyframes warnpulse{ 0%,100%{opacity:1;} 50%{opacity:.6;} }
+
   #panel{
     position:absolute;left:10px;bottom:10px;z-index:500;
     background:var(--panel);border:1px solid var(--border);border-radius:10px;
-    padding:10px 12px;width:230px;max-height:70vh;overflow:auto;
+    padding:10px 12px;width:240px;max-height:70vh;overflow:auto;
     box-shadow:0 2px 10px rgba(0,0,0,.25);font-size:12px;
   }
   #panel h2{font-size:11px;margin:0 0 6px;color:var(--muted);letter-spacing:.03em;text-transform:uppercase;}
@@ -54,27 +67,57 @@
   .swatch{width:14px;height:14px;border-radius:50%;flex:0 0 auto;border:2px solid rgba(255,255,255,.5);}
   .line-row .name{flex:1;font-size:12px;}
   .line-row .cnt{font-size:10px;color:var(--muted);}
+  .line-row .warnmark{color:var(--warn);font-size:11px;font-weight:700;}
   .line-row.off{opacity:.35;}
   .sep{border-top:1px solid var(--border);margin:8px 0;}
   #speedRow{display:flex;gap:4px;flex-wrap:wrap;}
   .spdbtn{flex:1;padding:4px 0;border-radius:6px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:11px;cursor:pointer;}
   .spdbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
   .note{font-size:10.5px;color:var(--muted);line-height:1.5;margin-top:8px;}
+  .note.warn{color:var(--warn);font-weight:700;}
 
-  .train-label{
-    font-size:9px;font-weight:700;color:#fff;background:rgba(0,0,0,.55);
-    padding:1px 4px;border-radius:4px;white-space:nowrap;transform:translate(-50%,-150%);
-  }
-  .station-dot{border-radius:50%;background:var(--panel);}
+  .station-dot{border-radius:50%;background:var(--panel);cursor:pointer;}
   .leaflet-popup-content-wrapper{background:var(--panel);color:var(--text);border-radius:8px;}
   .leaflet-popup-tip{background:var(--panel);}
   .leaflet-popup-content{font-size:12px;margin:8px 10px;}
   .leaflet-control-attribution{font-size:9px !important;}
 
+  #stationPanel{
+    position:absolute;right:10px;bottom:10px;z-index:600;
+    background:var(--panel);border:1px solid var(--border);border-radius:10px;
+    width:280px;max-height:60vh;display:none;flex-direction:column;
+    box-shadow:0 4px 18px rgba(0,0,0,.35);overflow:hidden;
+  }
+  #stationPanel .sp-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 12px;border-bottom:1px solid var(--border);
+  }
+  #stationPanel .sp-head b{font-size:14px;}
+  #stationPanel .sp-close{cursor:pointer;color:var(--muted);font-size:16px;line-height:1;background:none;border:none;padding:2px 6px;}
+  #stationPanel .sp-list{overflow:auto;padding:6px 10px 10px;font-size:12px;}
+  .arrival-row{display:flex;align-items:center;gap:8px;padding:6px 2px;border-bottom:1px dashed var(--border);}
+  .arrival-row:last-child{border-bottom:none;}
+  .arrival-chip{width:10px;height:10px;border-radius:50%;flex:0 0 auto;}
+  .arrival-main{flex:1;min-width:0;}
+  .arrival-line{font-size:11px;color:var(--muted);}
+  .arrival-dest{font-size:12.5px;font-weight:700;}
+  .arrival-eta{font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap;}
+  .arrival-warn{font-size:10px;color:var(--warn);font-weight:700;display:block;}
+  .sp-empty{color:var(--muted);font-size:11.5px;padding:6px 2px;}
+
+  .warn-badge{
+    width:18px;height:18px;border-radius:50%;background:var(--warn);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;
+    border:2px solid #fff;box-shadow:0 0 6px rgba(0,0,0,.5);
+    animation:warnpulse 1.2s ease-in-out infinite;
+  }
+
   @media (max-width:640px){
     #panel{width:180px;font-size:11px;}
-    #titlebar{max-width:65vw;}
+    #titlebar{max-width:60vw;}
     #titlebar p{display:none;}
+    #stationPanel{width:min(86vw,280px);}
+    #banner{max-width:84vw;}
   }
 </style>
 </head>
@@ -84,7 +127,7 @@
 
   <div id="titlebar">
     <h1>東京23区 鉄道運行マップ</h1>
-    <p>公開されている運行間隔・駅間標準所要時間をもとにした<b>運行シミュレーション</b>です。実際の列車のGPS位置ではありません。</p>
+    <p>公開されている運行間隔・駅間標準所要時間をもとにした<b>運行シミュレーション</b>です。実際の列車のGPS位置ではありません。遅延・運転見合わせの表示もデモ用のランダム生成で、実際の運行情報ではありません。</p>
   </div>
 
   <div id="clockbox">
@@ -93,6 +136,8 @@
     <div class="status" id="clockStatus"></div>
   </div>
 
+  <div id="banner"></div>
+
   <div id="panel">
     <h2>路線</h2>
     <div id="lineList"></div>
@@ -100,8 +145,16 @@
     <h2>表示速度</h2>
     <div id="speedRow"></div>
     <div class="note">
-      始発前・終電後は運行間隔に基づき列車を表示しません。駅間の位置は直線補間による概算です。
+      駅をクリックすると、何分後にどの路線のどこ行きが来るか表示します。
     </div>
+    <div class="note warn">
+      ⚠ 遅延・運転見合わせはデモ用ランダム生成です。実際の運行情報は各社公式サイト/アプリをご確認ください。
+    </div>
+  </div>
+
+  <div id="stationPanel">
+    <div class="sp-head"><b id="spTitle">駅名</b><button class="sp-close" id="spClose">✕</button></div>
+    <div class="sp-list" id="spList"></div>
   </div>
 </div>
 
@@ -112,6 +165,7 @@
 const LINES = [
   {
     id:"yamanote", name:"山手線", color:"#8fc31f", loop:true,
+    loopLabels:["外回り(池袋・渋谷方面)","内回り(上野・東京方面)"],
     stations:[
       ["東京",35.6812,139.7671],["神田",35.6918,139.7709],["秋葉原",35.6984,139.7731],
       ["御徒町",35.7075,139.7746],["上野",35.7141,139.7774],["鶯谷",35.7206,139.7786],
@@ -173,6 +227,37 @@ const LINES = [
       ["新橋",35.6657,139.7574],["大門",35.6567,139.7568],["三田",35.6459,139.7474],
       ["泉岳寺",35.6356,139.7409]
     ]
+  },
+  {
+    id:"tozai", name:"東京メトロ東西線", color:"#009bbf", loop:false,
+    stations:[
+      ["中野",35.7058,139.6655],["落合",35.7110,139.6758],["高田馬場",35.7122,139.7036],
+      ["早稲田",35.7089,139.7196],["神楽坂",35.7016,139.7362],["飯田橋",35.7020,139.7447],
+      ["九段下",35.6962,139.7522],["竹橋",35.6908,139.7592],["大手町",35.6853,139.7645],
+      ["日本橋",35.6819,139.7745],["茅場町",35.6766,139.7797],["門前仲町",35.6726,139.7925],
+      ["木場",35.6719,139.8012],["東陽町",35.6720,139.8156],["南砂町",35.6714,139.8280],
+      ["西葛西",35.6676,139.8459],["葛西",35.6645,139.8600]
+    ]
+  },
+  {
+    id:"hibiya", name:"東京メトロ日比谷線", color:"#9caeb4", loop:false,
+    stations:[
+      ["中目黒",35.6445,139.6989],["恵比寿",35.6467,139.7101],["広尾",35.6498,139.7220],
+      ["六本木",35.6627,139.7316],["神谷町",35.6646,139.7444],["霞ケ関",35.6749,139.7514],
+      ["国会議事堂前",35.6757,139.7460],["銀座",35.6716,139.7649],["東銀座",35.6697,139.7675],
+      ["築地",35.6654,139.7707],["八丁堀",35.6749,139.7785],["茅場町",35.6766,139.7797],
+      ["人形町",35.6868,139.7822],["小伝馬町",35.6890,139.7822],["秋葉原",35.6984,139.7731],
+      ["上野",35.7141,139.7774],["入谷",35.7217,139.7827],["三ノ輪",35.7267,139.7858],
+      ["南千住",35.7338,139.7994]
+    ]
+  },
+  {
+    id:"mita", name:"都営三田線", color:"#0079c2", loop:false,
+    stations:[
+      ["巣鴨",35.7334,139.7392],["白山",35.7205,139.7524],["神保町",35.6958,139.7572],
+      ["大手町",35.6853,139.7645],["日比谷",35.6749,139.7606],["内幸町",35.6730,139.7563],
+      ["芝公園",35.6558,139.7488],["三田",35.6459,139.7474],["泉岳寺",35.6356,139.7409]
+    ]
   }
 ];
 
@@ -186,7 +271,77 @@ function headwaySeconds(hour){
   return null; // no service (last train has gone / first train not yet)
 }
 
-// ---------- Build map ----------
+// ---------- Build per-line direction groups ----------
+// Each group is an independently-running cyclic sequence of stations used both
+// for interpolating a train's position AND for computing destination labels
+// and station arrival times. Loop lines (Yamanote) get two groups, one per
+// physical running direction. Point-to-point lines get one "there and back"
+// group whose first half is the forward leg and second half the return leg.
+LINES.forEach(line=>{
+  const n = line.stations.length;
+  if (line.loop){
+    line.groups = [
+      { id:line.id+"_cw", kind:"loop", seq:line.stations, label: line.loopLabels[0] },
+      { id:line.id+"_ccw", kind:"loop", seq:line.stations.slice().reverse(), label: line.loopLabels[1] }
+    ];
+  } else {
+    const seq = line.stations.concat(line.stations.slice(0,-1).reverse());
+    line.groups = [
+      { id:line.id+"_rt", kind:"bounce", seq, n,
+        fwdLabel: line.stations[n-1][0]+"方面", bwdLabel: line.stations[0][0]+"方面" }
+    ];
+  }
+  line.groups.forEach((g,gi)=>{
+    g.cycle = g.seq.length * (SEG_TIME + DWELL);
+    g.phaseShift = gi * 45; // desync multiple groups of the same line a bit
+  });
+});
+
+function destLabel(group, segIdx){
+  if (group.kind === "loop") return group.label;
+  const seg = ((segIdx % group.seq.length) + group.seq.length) % group.seq.length;
+  return seg < group.n - 1 ? group.fwdLabel : group.bwdLabel;
+}
+
+function mod(a,m){ return ((a % m) + m) % m; }
+function lerp(a,b,t){ return a + (b-a)*t; }
+function interpPoint(p1,p2,t){ return [lerp(p1[1],p2[1],t), lerp(p1[2],p2[2],t)]; }
+
+// ---------- Station registry (merges same-named stations across lines) ----------
+const stationRegistry = new Map(); // name -> {name, lat, lng, lines:[{line}]}
+LINES.forEach(line=>{
+  line.stations.forEach(s=>{
+    let entry = stationRegistry.get(s[0]);
+    if (!entry){ entry = {name:s[0], lat:s[1], lng:s[2], lines:[]}; stationRegistry.set(s[0], entry); }
+    if (!entry.lines.find(l=>l.line.id===line.id)) entry.lines.push({line});
+  });
+});
+
+// ---------- Incidents (demo-only random anomaly simulation) ----------
+const incidents = new Map(); // lineId -> {type, delayMin, stationName, since, until}
+const incidentLayer = L.layerGroup();
+let incidentMarker = null;
+
+function rollIncidents(now){
+  for (const [lineId, inc] of Array.from(incidents.entries())){
+    if (now > inc.until) incidents.delete(lineId);
+  }
+  LINES.forEach(line=>{
+    if (incidents.has(line.id)) return;
+    if (Math.random() < 0.012){
+      const isSuspend = Math.random() < 0.3;
+      const delayMin = isSuspend ? (10+Math.floor(Math.random()*15)) : (3+Math.floor(Math.random()*7));
+      const station = line.stations[Math.floor(Math.random()*line.stations.length)];
+      incidents.set(line.id, {
+        type: isSuspend ? "運転見合わせ" : "遅延",
+        delayMin, stationName: station[0], lat:station[1], lng:station[2],
+        since: now, until: now + 240 + Math.random()*360
+      });
+    }
+  });
+}
+
+// ---------- Map setup ----------
 const map = L.map('map', {zoomControl:true, attributionControl:true})
   .setView([35.6895,139.7250], 12);
 
@@ -198,62 +353,46 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.p
 }).addTo(map);
 
 const lineLayers = {};
-const trainMarkers = {}; // id -> marker
+const trainMarkers = {};
 
 LINES.forEach(line=>{
   const latlngs = line.stations.map(s=>[s[1],s[2]]);
   const poly = L.polyline(latlngs, {color:line.color, weight:4, opacity:.85}).addTo(map);
-  line.stations.forEach(s=>{
-    L.circleMarker([s[1],s[2]], {radius:4, color:line.color, weight:2, fillColor:"#0e1116", fillOpacity:1, className:"station-dot"})
-      .bindPopup(`<b>${s[0]}</b><br><span style="color:${line.color}">${line.name}</span>`)
-      .addTo(map);
-  });
   lineLayers[line.id] = {poly, visible:true, group:L.layerGroup()};
 });
 
-// cumulative distance helper (Haversine, meters) not needed for timing (we use fixed seg time),
-// but used for smooth geographic interpolation between two station points.
-function lerp(a,b,t){ return a + (b-a)*t; }
-function interpPoint(p1,p2,t){
-  return [lerp(p1[1],p2[1],t), lerp(p1[2],p2[2],t)];
-}
+incidentLayer.addTo(map);
 
-// Build round-trip station sequence for non-loop lines (out and back)
-function buildSequence(line){
-  if (line.loop) return line.stations;
-  const fwd = line.stations;
-  const bwd = line.stations.slice(0,-1).reverse();
-  return fwd.concat(bwd.slice(0,-0)); // full loop: forward then backward (excluding dup last/first handled by modulo)
-}
-
-LINES.forEach(line=>{
-  line.seq = line.loop ? line.stations : line.stations.concat(line.stations.slice(0,-1).reverse().slice(0,-0));
-  // sequence length for cycle; for non-loop, going forward N-1 segs then backward N-1 segs = 2*(N-1) segs total, loop back to start
-  line.numSegments = line.loop ? line.stations.length : (line.stations.length-1)*2;
-  line.cycle = line.numSegments * (SEG_TIME + DWELL);
+// One marker per unique physical station (interchange stations show a bigger ring)
+stationRegistry.forEach(st=>{
+  const multi = st.lines.length > 1;
+  const marker = L.circleMarker([st.lat, st.lng], {
+    radius: multi ? 6 : 4,
+    color: multi ? "#ffffff" : st.lines[0].line.color,
+    weight: multi ? 2 : 2,
+    fillColor: "#0e1116",
+    fillOpacity: 1,
+    className: "station-dot"
+  }).addTo(map);
+  marker.on('click', ()=> openStationPanel(st));
+  st.marker = marker;
 });
 
-function stationAt(line, idx){
-  // idx runs 0..numSegments (then wraps). Build the physical station for a given sequence index.
-  const n = line.stations.length;
-  if (line.loop){
-    return line.stations[idx % n];
-  } else {
-    const seg = idx % line.numSegments;
-    if (seg < n-1) return line.stations[seg];
-    return line.stations[n-1 - (seg-(n-1))];
-  }
-}
-
-const EPOCH = Math.floor(Date.now()/1000) - (Math.floor(Date.now()/1000) % 86400); // today 00:00 local approx (used only as stable phase reference)
-
-let speedMult = 10;
-
+// ---------- Clock / sim time ----------
 function jstNow(){
   const now = new Date();
-  // convert to JST (UTC+9) regardless of local tz
   const utcMs = now.getTime() + now.getTimezoneOffset()*60000;
   return new Date(utcMs + 9*3600000);
+}
+
+let speedMult = 10;
+const t0 = performance.now();
+const jst0 = jstNow();
+const secOfDay0 = jst0.getHours()*3600 + jst0.getMinutes()*60 + jst0.getSeconds();
+
+function currentSimSecondsOfDay(){
+  const elapsedReal = (performance.now()-t0)/1000;
+  return secOfDay0 + elapsedReal*speedMult;
 }
 
 function updateClock(){
@@ -266,82 +405,182 @@ function updateClock(){
   document.getElementById('clockStatus').textContent = hw ? (hw<=160 ? "混雑時間帯" : "通常運行") : "運行終了時間帯";
 }
 
-function simSeconds(){
-  // real elapsed seconds since page load, scaled by speedMult, plus a stable JST-of-day phase
-  const jst = jstNow();
-  const secOfDay = jst.getHours()*3600 + jst.getMinutes()*60 + jst.getSeconds() + jst.getMilliseconds()/1000;
-  return secOfDay * 1; // base phase; animation progression handled separately via performance.now()
-}
-
-const t0 = performance.now();
-const jst0 = jstNow();
-const secOfDay0 = jst0.getHours()*3600 + jst0.getMinutes()*60 + jst0.getSeconds();
-
-function currentSimSecondsOfDay(){
-  const elapsedReal = (performance.now()-t0)/1000;
-  return secOfDay0 + elapsedReal*speedMult;
-}
-
+// ---------- Train position rendering ----------
 function renderLine(line){
-  const hour = (currentSimSecondsOfDay()%86400)/3600;
+  const now = currentSimSecondsOfDay();
+  const inc = incidents.get(line.id);
+  const nowLine = (inc && inc.type === "運転見合わせ") ? inc.since : now;
+  const hour = (now % 86400) / 3600;
   const hw = headwaySeconds(hour);
   const group = lineLayers[line.id].group;
   group.clearLayers();
-  const activeIds = new Set();
 
+  let total = 0;
   if (hw){
-    const nTrains = Math.max(1, Math.floor(line.cycle / hw));
-    const simT = currentSimSecondsOfDay() % line.cycle;
-    for (let i=0;i<nTrains;i++){
-      const phase = (simT + i*hw) % line.cycle;
-      const segIdx = Math.floor(phase/(SEG_TIME+DWELL));
-      const within = phase % (SEG_TIME+DWELL);
-      const s1 = stationAt(line, segIdx);
-      const s2 = stationAt(line, segIdx+1);
-      let lat,lng,status,nextName;
-      if (within < SEG_TIME){
-        const frac = within/SEG_TIME;
-        const pt = interpPoint(s1,s2,frac);
-        lat=pt[0]; lng=pt[1];
-        status = "走行中";
-        nextName = s2[0];
-      } else {
-        lat=s1[1]; lng=s1[2];
-        status = "停車中";
-        nextName = s2[0];
+    line.groups.forEach(g=>{
+      const nTrains = Math.max(1, Math.floor(g.cycle / hw));
+      total += nTrains;
+      for (let i=0;i<nTrains;i++){
+        const phase = mod(nowLine + i*hw + g.phaseShift, g.cycle);
+        const segIdx = Math.floor(phase/(SEG_TIME+DWELL));
+        const within = phase % (SEG_TIME+DWELL);
+        const s1 = g.seq[segIdx % g.seq.length];
+        const s2 = g.seq[(segIdx+1) % g.seq.length];
+        let lat,lng,status;
+        if (within < SEG_TIME){
+          const pt = interpPoint(s1,s2,within/SEG_TIME);
+          lat=pt[0]; lng=pt[1]; status="走行中";
+        } else {
+          lat=s1[1]; lng=s1[2]; status="停車中";
+        }
+        const dest = destLabel(g, segIdx);
+        const id = g.id+"_"+i;
+        let marker = trainMarkers[id];
+        const warnRing = inc ? `border:2px solid ${inc.type==='運転見合わせ' ? '#ff5252' : '#ffb300'};` : `border:2px solid #fff;`;
+        const icon = L.divIcon({
+          className:"",
+          html:`<div style="width:11px;height:11px;border-radius:50%;background:${line.color};${warnRing}box-shadow:0 0 4px rgba(0,0,0,.6);"></div>`,
+          iconSize:[11,11], iconAnchor:[5,5]
+        });
+        if (!marker){
+          marker = L.marker([lat,lng], {icon}).bindPopup("");
+          trainMarkers[id] = marker;
+        } else {
+          marker.setLatLng([lat,lng]);
+          marker.setIcon(icon);
+        }
+        let popup = `<b style="color:${line.color}">${line.name}</b><br>${dest}<br>${status}`;
+        if (inc) popup += `<br><span style="color:#ff5252;font-weight:700;">⚠ ${inc.type}(目安+${inc.delayMin}分・デモ)</span>`;
+        marker.setPopupContent(popup);
+        group.addLayer(marker);
       }
-      const id = line.id+"_"+i;
-      activeIds.add(id);
-      let marker = trainMarkers[id];
-      const icon = L.divIcon({
-        className:"",
-        html:`<div style="width:11px;height:11px;border-radius:50%;background:${line.color};border:2px solid #fff;box-shadow:0 0 4px rgba(0,0,0,.6);"></div>`,
-        iconSize:[11,11], iconAnchor:[5,5]
-      });
-      if (!marker){
-        marker = L.marker([lat,lng], {icon}).bindPopup("");
-        trainMarkers[id] = marker;
-      } else {
-        marker.setLatLng([lat,lng]);
-        marker.setIcon(icon);
-      }
-      marker.setPopupContent(`<b style="color:${line.color}">${line.name}</b><br>${status}<br>次: ${nextName}`);
-      group.addLayer(marker);
-    }
+    });
   }
 
-  // cleanup stray markers from previous render not reused (handled by clearLayers + group re-add; markers persist in trainMarkers map but only added ones show)
-  lineLayers[line.id].count = hw ? Math.max(1, Math.floor(line.cycle / hw)) : 0;
+  // line color / blink when an incident is active (demo-only)
+  if (inc){
+    const blink = (Math.floor(now*2) % 2) === 0;
+    lineLayers[line.id].poly.setStyle({ color:"#ff5252", weight:6, opacity: blink?0.95:0.4, dashArray:"6,6" });
+  } else {
+    lineLayers[line.id].poly.setStyle({ color:line.color, weight:4, opacity:.85, dashArray:null });
+  }
+
+  lineLayers[line.id].count = total;
 }
 
+function renderIncidentMarkers(){
+  incidentLayer.clearLayers();
+  incidents.forEach((inc, lineId)=>{
+    const icon = L.divIcon({ className:"", html:`<div class="warn-badge">!</div>`, iconSize:[18,18], iconAnchor:[9,9] });
+    const m = L.marker([inc.lat, inc.lng], {icon, zIndexOffset:1000})
+      .bindPopup(`<b style="color:#ff5252">⚠ ${inc.type}</b><br>${inc.stationName}駅付近<br>目安+${inc.delayMin}分<br><span style="font-size:10px;color:#888">※デモ用のランダム生成情報です</span>`);
+    incidentLayer.addLayer(m);
+  });
+}
+
+function renderBanner(){
+  const el = document.getElementById('banner');
+  if (incidents.size === 0){ el.style.display = "none"; el.innerHTML=""; return; }
+  el.style.display = "flex";
+  el.innerHTML = "";
+  incidents.forEach((inc, lineId)=>{
+    const line = LINES.find(l=>l.id===lineId);
+    const div = document.createElement('div');
+    div.className = "banner-item";
+    div.innerHTML = `⚠ ${line.name}: ${inc.stationName}駅付近で${inc.type}(目安+${inc.delayMin}分) <span class="demo-tag">[デモ]</span>`;
+    el.appendChild(div);
+  });
+}
+
+// ---------- Station arrival panel ----------
+let selectedStation = null;
+
+function computeArrivals(st){
+  const now = currentSimSecondsOfDay();
+  const rows = [];
+  st.lines.forEach(({line})=>{
+    const inc = incidents.get(line.id);
+    const nowLine = (inc && inc.type === "運転見合わせ") ? inc.since : now;
+    const hour = (now % 86400) / 3600;
+    const hw = headwaySeconds(hour);
+    if (!hw) return;
+    line.groups.forEach(g=>{
+      const matches = [];
+      g.seq.forEach((s,idx)=>{ if (s[0] === st.name) matches.push(idx); });
+      if (!matches.length) return;
+      const nTrains = Math.max(1, Math.floor(g.cycle / hw));
+      for (let i=0;i<nTrains;i++){
+        const curPhase = mod(nowLine + i*hw + g.phaseShift, g.cycle);
+        matches.forEach(idx=>{
+          const arrT = idx === 0 ? 0 : ((idx-1)*(SEG_TIME+DWELL) + SEG_TIME);
+          let delta = mod(arrT - curPhase, g.cycle);
+          let etaMin = delta/60;
+          if (inc && inc.type === "遅延") etaMin += inc.delayMin;
+          const segIdx = idx === 0 ? 0 : idx-1;
+          rows.push({
+            line, dest: destLabel(g, segIdx), etaMin,
+            warn: inc ? inc.type : null, delayMin: inc ? inc.delayMin : 0
+          });
+        });
+      }
+    });
+  });
+  rows.sort((a,b)=>a.etaMin-b.etaMin);
+  return rows.slice(0,14);
+}
+
+function openStationPanel(st){
+  selectedStation = st;
+  document.getElementById('stationPanel').style.display = "flex";
+  renderStationPanel();
+}
+
+function renderStationPanel(){
+  if (!selectedStation) return;
+  const panel = document.getElementById('stationPanel');
+  if (panel.style.display === "none") return;
+  document.getElementById('spTitle').textContent = selectedStation.name + "駅";
+  const list = document.getElementById('spList');
+  const rows = computeArrivals(selectedStation);
+  if (!rows.length){
+    list.innerHTML = `<div class="sp-empty">現在運行時間外、または該当列車がありません。</div>`;
+    return;
+  }
+  list.innerHTML = rows.map(r=>{
+    const mins = r.etaMin < 0.5 ? "まもなく" : Math.round(r.etaMin) + "分";
+    const warnHtml = r.warn ? `<span class="arrival-warn">⚠ ${r.warn}(+${r.delayMin}分・デモ)</span>` : "";
+    return `<div class="arrival-row">
+      <span class="arrival-chip" style="background:${r.line.color}"></span>
+      <span class="arrival-main">
+        <span class="arrival-line">${r.line.name}</span>
+        <span class="arrival-dest">${r.dest}</span>
+        ${warnHtml}
+      </span>
+      <span class="arrival-eta">${mins}</span>
+    </div>`;
+  }).join("");
+}
+
+document.getElementById('spClose').onclick = ()=>{
+  selectedStation = null;
+  document.getElementById('stationPanel').style.display = "none";
+};
+
+// ---------- Main loop ----------
+let lastIncidentRoll = 0;
+
 function renderAll(){
+  const now = currentSimSecondsOfDay();
   updateClock();
+  if (now - lastIncidentRoll > 10){ rollIncidents(now); lastIncidentRoll = now; }
   LINES.forEach(line=>{
     if (lineLayers[line.id].visible) renderLine(line);
     else lineLayers[line.id].group.clearLayers();
   });
+  renderIncidentMarkers();
+  renderBanner();
   updateLineList();
-  requestAnimationFrame(renderAll);
+  renderStationPanel();
 }
 
 // ---------- UI: line list ----------
@@ -350,14 +589,16 @@ function updateLineList(){
   el.innerHTML = "";
   LINES.forEach(line=>{
     const row = document.createElement('div');
+    const warn = incidents.has(line.id);
     row.className = "line-row" + (lineLayers[line.id].visible ? "" : " off");
     row.innerHTML = `<span class="swatch" style="background:${line.color}"></span>
       <span class="name">${line.name}</span>
+      ${warn ? '<span class="warnmark">⚠</span>' : ''}
       <span class="cnt">${lineLayers[line.id].visible ? (lineLayers[line.id].count||0)+"本" : "非表示"}</span>`;
     row.onclick = ()=>{
-      const st = lineLayers[line.id];
-      st.visible = !st.visible;
-      if (st.visible) st.group.addTo(map); else map.removeLayer(st.group);
+      const stl = lineLayers[line.id];
+      stl.visible = !stl.visible;
+      if (stl.visible) stl.group.addTo(map); else map.removeLayer(stl.group);
     };
     el.appendChild(row);
   });
@@ -380,7 +621,8 @@ speedOptions.forEach(([val,label])=>{
   speedRow.appendChild(btn);
 });
 
-requestAnimationFrame(renderAll);
+setInterval(renderAll, 200);
+renderAll();
 })();
 </script>
 </body>
