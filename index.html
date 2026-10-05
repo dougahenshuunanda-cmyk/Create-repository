@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>東京23区 鉄道運行マップ</title>
+<meta name="description" content="東京23区の主要路線の列車位置を、公開されている運行間隔・停車パターンに基づきシミュレーション表示する地図です。">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c2230; --text:#e6edf3; --muted:#8b949e;
+    --border:#2a313c; --accent:#58a6ff;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f4f6f8; --panel:#ffffff; --panel2:#f0f2f5; --text:#1b1f24; --muted:#5b6572; --border:#d7dce2; --accent:#1465c0; }
+  }
+  :root[data-theme="dark"]{ --bg:#0e1116; --panel:#161b22; --panel2:#1c2230; --text:#e6edf3; --muted:#8b949e; --border:#2a313c; --accent:#58a6ff; }
+  :root[data-theme="light"]{ --bg:#f4f6f8; --panel:#ffffff; --panel2:#f0f2f5; --text:#1b1f24; --muted:#5b6572; --border:#d7dce2; --accent:#1465c0; }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,-apple-system,sans-serif;}
+  #app{position:relative;width:100%;height:100vh;}
+  #map{position:absolute;inset:0;background:var(--bg);}
+  .leaflet-container{background:var(--bg);font-family:inherit;}
+
+  #titlebar{
+    position:absolute;top:10px;left:10px;z-index:500;
+    background:var(--panel);border:1px solid var(--border);border-radius:10px;
+    padding:8px 14px;box-shadow:0 2px 10px rgba(0,0,0,.25);
+    max-width:min(78vw,420px);
+  }
+  #titlebar h1{font-size:14px;margin:0;font-weight:700;}
+  #titlebar p{font-size:11px;color:var(--muted);margin:4px 0 0;line-height:1.5;}
+
+  #clockbox{
+    position:absolute;top:10px;right:10px;z-index:500;
+    background:var(--panel);border:1px solid var(--border);border-radius:10px;
+    padding:8px 14px;text-align:right;box-shadow:0 2px 10px rgba(0,0,0,.25);
+  }
+  #clockbox .time{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;}
+  #clockbox .lbl{font-size:10px;color:var(--muted);}
+  #clockbox .status{font-size:11px;margin-top:3px;color:var(--accent);}
+
+  #panel{
+    position:absolute;left:10px;bottom:10px;z-index:500;
+    background:var(--panel);border:1px solid var(--border);border-radius:10px;
+    padding:10px 12px;width:230px;max-height:70vh;overflow:auto;
+    box-shadow:0 2px 10px rgba(0,0,0,.25);font-size:12px;
+  }
+  #panel h2{font-size:11px;margin:0 0 6px;color:var(--muted);letter-spacing:.03em;text-transform:uppercase;}
+  .line-row{display:flex;align-items:center;gap:7px;padding:4px 2px;border-radius:6px;cursor:pointer;user-select:none;}
+  .line-row:hover{background:var(--panel2);}
+  .swatch{width:14px;height:14px;border-radius:50%;flex:0 0 auto;border:2px solid rgba(255,255,255,.5);}
+  .line-row .name{flex:1;font-size:12px;}
+  .line-row .cnt{font-size:10px;color:var(--muted);}
+  .line-row.off{opacity:.35;}
+  .sep{border-top:1px solid var(--border);margin:8px 0;}
+  #speedRow{display:flex;gap:4px;flex-wrap:wrap;}
+  .spdbtn{flex:1;padding:4px 0;border-radius:6px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:11px;cursor:pointer;}
+  .spdbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .note{font-size:10.5px;color:var(--muted);line-height:1.5;margin-top:8px;}
+
+  .train-label{
+    font-size:9px;font-weight:700;color:#fff;background:rgba(0,0,0,.55);
+    padding:1px 4px;border-radius:4px;white-space:nowrap;transform:translate(-50%,-150%);
+  }
+  .station-dot{border-radius:50%;background:var(--panel);}
+  .leaflet-popup-content-wrapper{background:var(--panel);color:var(--text);border-radius:8px;}
+  .leaflet-popup-tip{background:var(--panel);}
+  .leaflet-popup-content{font-size:12px;margin:8px 10px;}
+  .leaflet-control-attribution{font-size:9px !important;}
+
+  @media (max-width:640px){
+    #panel{width:180px;font-size:11px;}
+    #titlebar{max-width:65vw;}
+    #titlebar p{display:none;}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="map"></div>
+
+  <div id="titlebar">
+    <h1>東京23区 鉄道運行マップ</h1>
+    <p>公開されている運行間隔・駅間標準所要時間をもとにした<b>運行シミュレーション</b>です。実際の列車のGPS位置ではありません。</p>
+  </div>
+
+  <div id="clockbox">
+    <div class="time" id="clockTime">--:--:--</div>
+    <div class="lbl">日本時間 (JST)</div>
+    <div class="status" id="clockStatus"></div>
+  </div>
+
+  <div id="panel">
+    <h2>路線</h2>
+    <div id="lineList"></div>
+    <div class="sep"></div>
+    <h2>表示速度</h2>
+    <div id="speedRow"></div>
+    <div class="note">
+      始発前・終電後は運行間隔に基づき列車を表示しません。駅間の位置は直線補間による概算です。
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+// ---------- Line & station data (approximate real-world coordinates) ----------
+const LINES = [
+  {
+    id:"yamanote", name:"山手線", color:"#8fc31f", loop:true,
+    stations:[
+      ["東京",35.6812,139.7671],["神田",35.6918,139.7709],["秋葉原",35.6984,139.7731],
+      ["御徒町",35.7075,139.7746],["上野",35.7141,139.7774],["鶯谷",35.7206,139.7786],
+      ["日暮里",35.7280,139.7707],["西日暮里",35.7322,139.7665],["田端",35.7382,139.7607],
+      ["駒込",35.7366,139.7467],["巣鴨",35.7334,139.7392],["大塚",35.7314,139.7287],
+      ["池袋",35.7295,139.7109],["目白",35.7211,139.7064],["高田馬場",35.7122,139.7036],
+      ["新大久保",35.7012,139.7005],["新宿",35.6896,139.7006],["代々木",35.6829,139.7021],
+      ["原宿",35.6702,139.7026],["渋谷",35.6580,139.7016],["恵比寿",35.6467,139.7101],
+      ["目黒",35.6339,139.7157],["五反田",35.6263,139.7232],["大崎",35.6197,139.7286],
+      ["品川",35.6285,139.7388],["高輪ゲートウェイ",35.6355,139.7388],["田町",35.6456,139.7474],
+      ["浜松町",35.6553,139.7570],["新橋",35.6665,139.7585]
+    ]
+  },
+  {
+    id:"chuo", name:"中央線快速", color:"#f15a22", loop:false,
+    stations:[
+      ["東京",35.6812,139.7671],["神田",35.6918,139.7709],["御茶ノ水",35.6995,139.7631],
+      ["水道橋",35.7021,139.7524],["飯田橋",35.7020,139.7447],["市ケ谷",35.6912,139.7357],
+      ["四ツ谷",35.6868,139.7301],["新宿",35.6896,139.7006],["大久保",35.6997,139.6948],
+      ["東中野",35.7069,139.6834],["中野",35.7058,139.6655],["高円寺",35.7054,139.6500],
+      ["阿佐ケ谷",35.7047,139.6354],["荻窪",35.7045,139.6198]
+    ]
+  },
+  {
+    id:"keihintohoku", name:"京浜東北線", color:"#00b2e5", loop:false,
+    stations:[
+      ["赤羽",35.7779,139.7206],["田端",35.7382,139.7607],["日暮里",35.7280,139.7707],
+      ["鶯谷",35.7206,139.7786],["上野",35.7141,139.7774],["御徒町",35.7075,139.7746],
+      ["秋葉原",35.6984,139.7731],["神田",35.6918,139.7709],["東京",35.6812,139.7671],
+      ["新橋",35.6665,139.7585],["浜松町",35.6553,139.7570],["田町",35.6456,139.7474],
+      ["品川",35.6285,139.7388],["大井町",35.6058,139.7402],["大森",35.5886,139.7275],
+      ["蒲田",35.5622,139.7161]
+    ]
+  },
+  {
+    id:"ginza", name:"東京メトロ銀座線", color:"#f39700", loop:false,
+    stations:[
+      ["浅草",35.7114,139.7966],["田原町",35.7073,139.7903],["上野",35.7101,139.7773],
+      ["末広町",35.7076,139.7735],["神田",35.6914,139.7703],["三越前",35.6874,139.7724],
+      ["日本橋",35.6819,139.7745],["京橋",35.6763,139.7725],["銀座",35.6716,139.7649],
+      ["新橋",35.6666,139.7585],["虎ノ門",35.6688,139.7488],["溜池山王",35.6723,139.7406],
+      ["赤坂見附",35.6775,139.7365],["青山一丁目",35.6733,139.7259],["外苑前",35.6697,139.7161],
+      ["表参道",35.6654,139.7124],["渋谷",35.6595,139.7036]
+    ]
+  },
+  {
+    id:"marunouchi", name:"東京メトロ丸ノ内線", color:"#e60012", loop:false,
+    stations:[
+      ["荻窪",35.7045,139.6198],["新宿",35.6896,139.7006],["赤坂見附",35.6775,139.7365],
+      ["銀座",35.6716,139.7649],["東京",35.6812,139.7671],["大手町",35.6853,139.7645],
+      ["後楽園",35.7073,139.7496],["池袋",35.7295,139.7109]
+    ]
+  },
+  {
+    id:"asakusa", name:"都営浅草線", color:"#ee6392", loop:false,
+    stations:[
+      ["押上",35.7101,139.8128],["浅草",35.7114,139.7966],["蔵前",35.7024,139.7919],
+      ["浅草橋",35.6978,139.7868],["東日本橋",35.6933,139.7832],["日本橋",35.6819,139.7745],
+      ["新橋",35.6657,139.7574],["大門",35.6567,139.7568],["三田",35.6459,139.7474],
+      ["泉岳寺",35.6356,139.7409]
+    ]
+  }
+];
+
+const SEG_TIME = 110;   // seconds between adjacent stations (approx average)
+const DWELL = 25;       // seconds stopped at a station
+
+function headwaySeconds(hour){
+  if (hour>=7 && hour<9) return 150;    // morning rush
+  if (hour>=17 && hour<19.5) return 160; // evening rush
+  if (hour>=5 && hour<23.5) return 300;  // normal daytime
+  return null; // no service (last train has gone / first train not yet)
+}
+
+// ---------- Build map ----------
+const map = L.map('map', {zoomControl:true, attributionControl:true})
+  .setView([35.6895,139.7250], 12);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',{
+  maxZoom:19, attribution:'&copy; OpenStreetMap contributors &copy; CARTO'
+}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',{
+  maxZoom:19, pane:'shadowPane'
+}).addTo(map);
+
+const lineLayers = {};
+const trainMarkers = {}; // id -> marker
+
+LINES.forEach(line=>{
+  const latlngs = line.stations.map(s=>[s[1],s[2]]);
+  const poly = L.polyline(latlngs, {color:line.color, weight:4, opacity:.85}).addTo(map);
+  line.stations.forEach(s=>{
+    L.circleMarker([s[1],s[2]], {radius:4, color:line.color, weight:2, fillColor:"#0e1116", fillOpacity:1, className:"station-dot"})
+      .bindPopup(`<b>${s[0]}</b><br><span style="color:${line.color}">${line.name}</span>`)
+      .addTo(map);
+  });
+  lineLayers[line.id] = {poly, visible:true, group:L.layerGroup()};
+});
+
+// cumulative distance helper (Haversine, meters) not needed for timing (we use fixed seg time),
+// but used for smooth geographic interpolation between two station points.
+function lerp(a,b,t){ return a + (b-a)*t; }
+function interpPoint(p1,p2,t){
+  return [lerp(p1[1],p2[1],t), lerp(p1[2],p2[2],t)];
+}
+
+// Build round-trip station sequence for non-loop lines (out and back)
+function buildSequence(line){
+  if (line.loop) return line.stations;
+  const fwd = line.stations;
+  const bwd = line.stations.slice(0,-1).reverse();
+  return fwd.concat(bwd.slice(0,-0)); // full loop: forward then backward (excluding dup last/first handled by modulo)
+}
+
+LINES.forEach(line=>{
+  line.seq = line.loop ? line.stations : line.stations.concat(line.stations.slice(0,-1).reverse().slice(0,-0));
+  // sequence length for cycle; for non-loop, going forward N-1 segs then backward N-1 segs = 2*(N-1) segs total, loop back to start
+  line.numSegments = line.loop ? line.stations.length : (line.stations.length-1)*2;
+  line.cycle = line.numSegments * (SEG_TIME + DWELL);
+});
+
+function stationAt(line, idx){
+  // idx runs 0..numSegments (then wraps). Build the physical station for a given sequence index.
+  const n = line.stations.length;
+  if (line.loop){
+    return line.stations[idx % n];
+  } else {
+    const seg = idx % line.numSegments;
+    if (seg < n-1) return line.stations[seg];
+    return line.stations[n-1 - (seg-(n-1))];
+  }
+}
+
+const EPOCH = Math.floor(Date.now()/1000) - (Math.floor(Date.now()/1000) % 86400); // today 00:00 local approx (used only as stable phase reference)
+
+let speedMult = 10;
+
+function jstNow(){
+  const now = new Date();
+  // convert to JST (UTC+9) regardless of local tz
+  const utcMs = now.getTime() + now.getTimezoneOffset()*60000;
+  return new Date(utcMs + 9*3600000);
+}
+
+function updateClock(){
+  const jst = jstNow();
+  const hh = String(jst.getHours()).padStart(2,'0');
+  const mm = String(jst.getMinutes()).padStart(2,'0');
+  const ss = String(jst.getSeconds()).padStart(2,'0');
+  document.getElementById('clockTime').textContent = `${hh}:${mm}:${ss}`;
+  const hw = headwaySeconds(jst.getHours()+jst.getMinutes()/60);
+  document.getElementById('clockStatus').textContent = hw ? (hw<=160 ? "混雑時間帯" : "通常運行") : "運行終了時間帯";
+}
+
+function simSeconds(){
+  // real elapsed seconds since page load, scaled by speedMult, plus a stable JST-of-day phase
+  const jst = jstNow();
+  const secOfDay = jst.getHours()*3600 + jst.getMinutes()*60 + jst.getSeconds() + jst.getMilliseconds()/1000;
+  return secOfDay * 1; // base phase; animation progression handled separately via performance.now()
+}
+
+const t0 = performance.now();
+const jst0 = jstNow();
+const secOfDay0 = jst0.getHours()*3600 + jst0.getMinutes()*60 + jst0.getSeconds();
+
+function currentSimSecondsOfDay(){
+  const elapsedReal = (performance.now()-t0)/1000;
+  return secOfDay0 + elapsedReal*speedMult;
+}
+
+function renderLine(line){
+  const hour = (currentSimSecondsOfDay()%86400)/3600;
+  const hw = headwaySeconds(hour);
+  const group = lineLayers[line.id].group;
+  group.clearLayers();
+  const activeIds = new Set();
+
+  if (hw){
+    const nTrains = Math.max(1, Math.floor(line.cycle / hw));
+    const simT = currentSimSecondsOfDay() % line.cycle;
+    for (let i=0;i<nTrains;i++){
+      const phase = (simT + i*hw) % line.cycle;
+      const segIdx = Math.floor(phase/(SEG_TIME+DWELL));
+      const within = phase % (SEG_TIME+DWELL);
+      const s1 = stationAt(line, segIdx);
+      const s2 = stationAt(line, segIdx+1);
+      let lat,lng,status,nextName;
+      if (within < SEG_TIME){
+        const frac = within/SEG_TIME;
+        const pt = interpPoint(s1,s2,frac);
+        lat=pt[0]; lng=pt[1];
+        status = "走行中";
+        nextName = s2[0];
+      } else {
+        lat=s1[1]; lng=s1[2];
+        status = "停車中";
+        nextName = s2[0];
+      }
+      const id = line.id+"_"+i;
+      activeIds.add(id);
+      let marker = trainMarkers[id];
+      const icon = L.divIcon({
+        className:"",
+        html:`<div style="width:11px;height:11px;border-radius:50%;background:${line.color};border:2px solid #fff;box-shadow:0 0 4px rgba(0,0,0,.6);"></div>`,
+        iconSize:[11,11], iconAnchor:[5,5]
+      });
+      if (!marker){
+        marker = L.marker([lat,lng], {icon}).bindPopup("");
+        trainMarkers[id] = marker;
+      } else {
+        marker.setLatLng([lat,lng]);
+        marker.setIcon(icon);
+      }
+      marker.setPopupContent(`<b style="color:${line.color}">${line.name}</b><br>${status}<br>次: ${nextName}`);
+      group.addLayer(marker);
+    }
+  }
+
+  // cleanup stray markers from previous render not reused (handled by clearLayers + group re-add; markers persist in trainMarkers map but only added ones show)
+  lineLayers[line.id].count = hw ? Math.max(1, Math.floor(line.cycle / hw)) : 0;
+}
+
+function renderAll(){
+  updateClock();
+  LINES.forEach(line=>{
+    if (lineLayers[line.id].visible) renderLine(line);
+    else lineLayers[line.id].group.clearLayers();
+  });
+  updateLineList();
+  requestAnimationFrame(renderAll);
+}
+
+// ---------- UI: line list ----------
+function updateLineList(){
+  const el = document.getElementById('lineList');
+  el.innerHTML = "";
+  LINES.forEach(line=>{
+    const row = document.createElement('div');
+    row.className = "line-row" + (lineLayers[line.id].visible ? "" : " off");
+    row.innerHTML = `<span class="swatch" style="background:${line.color}"></span>
+      <span class="name">${line.name}</span>
+      <span class="cnt">${lineLayers[line.id].visible ? (lineLayers[line.id].count||0)+"本" : "非表示"}</span>`;
+    row.onclick = ()=>{
+      const st = lineLayers[line.id];
+      st.visible = !st.visible;
+      if (st.visible) st.group.addTo(map); else map.removeLayer(st.group);
+    };
+    el.appendChild(row);
+  });
+}
+
+LINES.forEach(line=> lineLayers[line.id].group.addTo(map));
+
+// ---------- UI: speed control ----------
+const speedOptions = [[1,"実速度"],[10,"10倍"],[60,"60倍"]];
+const speedRow = document.getElementById('speedRow');
+speedOptions.forEach(([val,label])=>{
+  const btn = document.createElement('button');
+  btn.className = "spdbtn" + (val===speedMult?" active":"");
+  btn.textContent = label;
+  btn.onclick = ()=>{
+    speedMult = val;
+    document.querySelectorAll('.spdbtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  };
+  speedRow.appendChild(btn);
+});
+
+requestAnimationFrame(renderAll);
+})();
+</script>
+</body>
+</html>
