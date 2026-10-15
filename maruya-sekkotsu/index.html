@@ -22,7 +22,6 @@
     --blue-tint:#e7f0f7;
     --blue-border:#c3dbec;
     --radius:16px;
-    --shadow:0 2px 0 var(--line);
   }
   @media (prefers-color-scheme: dark){
     :root{
@@ -42,7 +41,7 @@
   .serif{font-family:"Shippori Mincho",serif;}
   .num-font{font-family:"Space Grotesk","Noto Sans JP",sans-serif;}
   a{color:inherit;} img{max-width:100%;display:block;}
-  .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px;position:relative;}
 
   .eyebrow{
     display:inline-flex;align-items:center;gap:8px;font-family:"Space Grotesk",sans-serif;
@@ -147,11 +146,54 @@
   .mini-stat .n{font-family:"Space Grotesk",sans-serif;font-size:20px;font-weight:700;line-height:1;}
   .mini-stat .l{font-size:10.5px;color:var(--ink-soft);margin-top:5px;}
 
+  /* ---------- 3-column docs-style body ---------- */
+  .docs-body{
+    max-width:1280px;margin:0 auto;padding:0 24px;
+    display:grid;grid-template-columns:1fr;gap:0;align-items:start;
+  }
+  @media(min-width:1140px){
+    .docs-body{grid-template-columns:188px minmax(0,1fr) 272px;gap:48px;}
+  }
+
+  .docs-nav{display:none;}
+  @media(min-width:1140px){
+    .docs-nav{display:block;position:sticky;top:96px;align-self:start;padding-top:56px;}
+  }
+  .docs-nav .nav-label{font-family:"Space Grotesk",sans-serif;font-size:10.5px;letter-spacing:.14em;color:var(--ink-soft);text-transform:uppercase;margin:0 0 12px;padding-left:16px;}
+  .docs-nav ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px;border-left:1px solid var(--line);}
+  .docs-nav a{
+    display:block;padding:7px 0 7px 16px;font-size:13px;color:var(--ink-soft);text-decoration:none;
+    border-left:2px solid transparent;margin-left:-1px;transition:color .2s,border-color .2s;
+  }
+  .docs-nav a:hover{color:var(--ink);}
+  .docs-nav a.active{color:var(--ink);font-weight:700;border-left-color:var(--amber);}
+
+  .docs-rail{display:none;}
+  @media(min-width:1140px){
+    .docs-rail{display:block;position:sticky;top:96px;align-self:start;padding-top:56px;}
+  }
+  .rail-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;}
+  .rail-card h4{font-family:"Shippori Mincho",serif;font-size:16px;margin:0 0 14px;font-weight:700;}
+  .rail-card .cta-btn{width:100%;justify-content:center;margin-bottom:10px;}
+  .rail-info{font-size:12.5px;color:var(--ink-soft);line-height:1.8;margin:0;}
+  .rail-divider{height:1px;background:var(--line);margin:16px 0;}
+  .rail-note{display:flex;gap:8px;font-size:12px;color:var(--ink-soft);line-height:1.7;}
+  .rail-note svg{width:14px;height:14px;stroke:var(--amber);flex:none;margin-top:2px;}
+  .rail-sns{display:flex;gap:8px;margin-top:16px;}
+  .rail-sns a{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);transition:border-color .2s,color .2s;}
+  .rail-sns a:hover{border-color:var(--amber);color:var(--amber);}
+  .rail-sns svg{width:14px;height:14px;}
+
+  .docs-main{min-width:0;}
+  .docs-main > section{padding:52px 0;border-bottom:1px solid var(--line);}
+  .docs-main > section:first-child{padding-top:0;}
+  .docs-main > section:last-child{border-bottom:none;}
+
   /* ---------- section shells ---------- */
   section{padding:76px 0;border-bottom:1px solid var(--line);}
   section:last-of-type{border-bottom:none;}
-  .section-head{max-width:620px;margin:0 0 42px;}
-  .section-head h2{font-family:"Shippori Mincho",serif;font-size:clamp(23px,3vw,30px);margin:12px 0 12px;font-weight:700;}
+  .section-head{max-width:620px;margin:0 0 36px;}
+  .section-head h2{font-family:"Shippori Mincho",serif;font-size:clamp(22px,2.8vw,28px);margin:12px 0 12px;font-weight:700;}
   .section-head p{color:var(--ink-soft);font-size:14.5px;margin:0;}
 
   .symptom-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
@@ -162,56 +204,55 @@
 
   /* ---------- services ---------- */
   .cards3{display:grid;gap:1px;grid-template-columns:1fr;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
-  @media(min-width:760px){.cards3{grid-template-columns:repeat(3,1fr);}}
-  .svc-card{background:var(--surface);padding:30px 26px;position:relative;}
-  .svc-card .num{position:absolute;top:22px;right:24px;font-family:"Space Grotesk",sans-serif;font-size:12px;color:var(--ink-soft);font-weight:600;opacity:.5;}
+  @media(min-width:640px){.cards3{grid-template-columns:repeat(3,1fr);}}
+  .svc-card{background:var(--surface);padding:26px 22px;position:relative;}
+  .svc-card .num{position:absolute;top:20px;right:22px;font-family:"Space Grotesk",sans-serif;font-size:12px;color:var(--ink-soft);font-weight:600;opacity:.5;}
   .svc-photo{
-    width:64px;height:64px;border-radius:12px;overflow:hidden;margin-bottom:20px;border:1px solid var(--line);
+    width:58px;height:58px;border-radius:12px;overflow:hidden;margin-bottom:18px;border:1px solid var(--line);
   }
   .svc-photo img{width:100%;height:100%;object-fit:cover;}
-  .svc-card h3{font-family:"Shippori Mincho",serif;font-size:17px;margin:0 0 10px;font-weight:700;}
-  .svc-card p{font-size:13.5px;color:var(--ink-soft);margin:0;}
+  .svc-card h3{font-family:"Shippori Mincho",serif;font-size:16px;margin:0 0 9px;font-weight:700;line-height:1.5;}
+  .svc-card p{font-size:13px;color:var(--ink-soft);margin:0;}
 
   /* ---------- first visit ---------- */
   .first-visit-wrap{
-    text-align:center;max-width:720px;margin:0 auto;background:var(--amber-tint);
-    border:1px solid var(--line);border-radius:var(--radius);padding:48px 40px;
+    background:var(--amber-tint);
+    border:1px solid var(--line);border-radius:var(--radius);padding:36px 32px;
   }
-  .fv-quote{font-family:"Shippori Mincho",serif;font-size:clamp(18px,2.4vw,23px);line-height:1.9;margin:16px 0 0;color:var(--ink);font-weight:600;}
+  .fv-quote{font-family:"Shippori Mincho",serif;font-size:clamp(17px,2.2vw,20px);line-height:1.9;margin:14px 0 0;color:var(--ink);font-weight:600;}
 
   /* ---------- stats ---------- */
-  #stats{padding:0;border-bottom:1px solid var(--line);}
-  .stats-panel{background:var(--surface-2);padding:52px 0;}
-  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center;}
-  .stat .v{font-family:"Space Grotesk",sans-serif;font-size:clamp(28px,4.4vw,40px);font-weight:600;display:flex;justify-content:center;align-items:baseline;gap:2px;}
-  .stat .v .suffix{font-size:16px;font-weight:500;color:var(--ink-soft);}
-  .stat .l{font-size:12px;letter-spacing:.04em;color:var(--ink-soft);margin-top:6px;}
+  .stats-panel{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:34px 28px;}
+  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:center;}
+  .stat .v{font-family:"Space Grotesk",sans-serif;font-size:clamp(24px,3.6vw,32px);font-weight:600;display:flex;justify-content:center;align-items:baseline;gap:2px;}
+  .stat .v .suffix{font-size:14px;font-weight:500;color:var(--ink-soft);}
+  .stat .l{font-size:11px;letter-spacing:.03em;color:var(--ink-soft);margin-top:5px;}
 
   /* ---------- director ---------- */
-  .director{display:grid;gap:40px;align-items:center;}
-  @media(min-width:860px){.director{grid-template-columns:.75fr 1.25fr;}}
+  .director{display:grid;gap:28px;align-items:center;}
+  @media(min-width:560px){.director{grid-template-columns:.7fr 1.3fr;}}
   .director-photo{
-    aspect-ratio:1/1;max-width:250px;margin:0 auto;border-radius:var(--radius);
+    aspect-ratio:1/1;max-width:200px;border-radius:var(--radius);
     overflow:hidden;border:1px solid var(--line);
   }
   .director-photo img{width:100%;height:100%;object-fit:cover;}
-  .director-text .role{color:var(--amber);font-weight:600;font-size:12.5px;letter-spacing:.06em;}
-  .director-text h3{font-family:"Shippori Mincho",serif;font-size:23px;margin:10px 0 16px;font-weight:700;}
-  .director-text p{color:var(--ink-soft);font-size:14px;margin:0 0 14px;}
-  .director-sign{font-family:"Shippori Mincho",serif;font-size:15px;margin-top:16px;color:var(--ink);font-weight:700;}
+  .director-text .role{color:var(--amber);font-weight:600;font-size:12px;letter-spacing:.06em;}
+  .director-text h3{font-family:"Shippori Mincho",serif;font-size:21px;margin:8px 0 14px;font-weight:700;}
+  .director-text p{color:var(--ink-soft);font-size:13.5px;margin:0 0 12px;}
+  .director-sign{font-family:"Shippori Mincho",serif;font-size:14px;margin-top:14px;color:var(--ink);font-weight:700;}
 
   /* ---------- news ---------- */
   .news-list{display:flex;flex-direction:column;border-top:1px solid var(--line);}
   .news-item{
-    display:grid;grid-template-columns:auto auto 1fr auto;gap:18px;align-items:center;
-    padding:20px 4px;border-bottom:1px solid var(--line);text-decoration:none;color:inherit;
+    display:grid;grid-template-columns:auto auto 1fr auto;gap:16px;align-items:center;
+    padding:18px 2px;border-bottom:1px solid var(--line);text-decoration:none;color:inherit;
     transition:padding-left .2s;
   }
   .news-item:hover{padding-left:8px;}
-  .news-item time{font-family:"Space Grotesk",sans-serif;font-size:12.5px;color:var(--ink-soft);white-space:nowrap;}
-  .news-tag{font-size:11px;font-weight:600;background:var(--amber-tint);color:var(--amber);padding:4px 10px;border-radius:999px;white-space:nowrap;}
-  .news-item .ttl{font-size:14.5px;font-weight:500;}
-  .news-item .arrow{width:15px;height:15px;stroke:var(--ink-soft);flex:none;}
+  .news-item time{font-family:"Space Grotesk",sans-serif;font-size:12px;color:var(--ink-soft);white-space:nowrap;}
+  .news-tag{font-size:10.5px;font-weight:600;background:var(--amber-tint);color:var(--amber);padding:3px 9px;border-radius:999px;white-space:nowrap;}
+  .news-item .ttl{font-size:14px;font-weight:500;}
+  .news-item .arrow{width:14px;height:14px;stroke:var(--ink-soft);flex:none;}
   @media(max-width:600px){.news-item{grid-template-columns:1fr auto;}.news-item time{order:3;grid-column:1/2;}.news-tag{order:1;}.news-item .ttl{order:2;grid-column:1/3;}.news-item .arrow{display:none;}}
 
   /* ---------- access ---------- */
@@ -355,106 +396,137 @@
     </div>
   </section>
 
-  <section id="services">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <span class="eyebrow">Service</span>
-        <h2>症状から選ぶ</h2>
-        <p>お身体の状態やご希望に合わせて、施術メニューをご用意しています。</p>
-        <div class="symptom-tags">
-          <span>捻挫</span><span>打撲</span><span>肉離れ(筋損傷)</span><span>骨折</span>
-          <span>脱臼</span><span>交通事故</span><span>産後ケア</span><span>酸素カプセル</span>
-        </div>
-      </div>
-      <div class="cards3 reveal">
-        <div class="svc-card">
-          <span class="num num-font">01</span>
-          <div class="svc-photo"><img src="images/treatment-1.jpg" alt="捻挫・打撲の施術風景" loading="lazy"></div>
-          <h3>捻挫・打撲・筋損傷(肉離れ)・骨折・脱臼</h3>
-          <p>交通事故によるケガにも対応。スポーツ選手の方も多く通院し、症状に合わせた丁寧な施術で早期の競技復帰・日常生活への回復をサポートします。</p>
-        </div>
-        <div class="svc-card">
-          <span class="num num-font">02</span>
-          <div class="svc-photo"><img src="images/oxygen-capsule.jpg" alt="疲労回復酸素カプセル" loading="lazy"></div>
-          <h3>酸素カプセル</h3>
-          <p>怪我を早く治すため、疲労回復酸素カプセルをご用意。高気圧・高濃度酸素により、回復と疲労軽減をサポートします。</p>
-        </div>
-        <div class="svc-card">
-          <span class="num num-font">03</span>
-          <div class="svc-photo"><img src="images/treatment-2.jpg" alt="産後ケアの施術風景" loading="lazy"></div>
-          <h3>産後ケア</h3>
-          <p>開業以来、助産師監修のもと産後ケアを実施。出産を終えたお母様のお身体に寄り添う施術を行っています。</p>
-        </div>
-      </div>
-    </div>
-  </section>
+  <div class="docs-body">
+    <nav class="docs-nav" aria-label="ページ内目次">
+      <div class="nav-label">目次</div>
+      <ul id="toc-list">
+        <li><a href="#services" data-toc="services">症状から選ぶ</a></li>
+        <li><a href="#first-visit" data-toc="first-visit">初めての方へ</a></li>
+        <li><a href="#stats" data-toc="stats">実績</a></li>
+        <li><a href="#director" data-toc="director">院長紹介</a></li>
+        <li><a href="#news" data-toc="news">お知らせ</a></li>
+      </ul>
+    </nav>
 
-  <section id="first-visit">
-    <div class="wrap">
-      <div class="first-visit-wrap reveal">
-        <span class="eyebrow">初めての方へ</span>
-        <p class="fv-quote">「まるや接骨院は、地域の皆様に愛される接骨院を目指しております。」</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="stats">
-    <div class="stats-panel">
-      <div class="wrap">
-        <div class="stats-row reveal">
-          <div class="stat">
-            <div class="v"><span class="num-font">1,505</span><span class="suffix">人+</span></div>
-            <div class="l">来院実績</div>
-          </div>
-          <div class="stat">
-            <div class="v"><span class="num-font">350</span><span class="suffix">件+</span></div>
-            <div class="l">施術実績</div>
-          </div>
-          <div class="stat">
-            <div class="v"><span class="num-font">450</span><span class="suffix">日+</span></div>
-            <div class="l">診療実施日数</div>
+    <div class="docs-main">
+      <section id="services">
+        <div class="section-head reveal">
+          <span class="eyebrow">Service</span>
+          <h2>症状から選ぶ</h2>
+          <p>お身体の状態やご希望に合わせて、施術メニューをご用意しています。</p>
+          <div class="symptom-tags">
+            <span>捻挫</span><span>打撲</span><span>肉離れ(筋損傷)</span><span>骨折</span>
+            <span>脱臼</span><span>交通事故</span><span>産後ケア</span><span>酸素カプセル</span>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
+        <div class="cards3 reveal">
+          <div class="svc-card">
+            <span class="num num-font">01</span>
+            <div class="svc-photo"><img src="images/treatment-1.jpg" alt="捻挫・打撲の施術風景" loading="lazy"></div>
+            <h3>捻挫・打撲・筋損傷(肉離れ)・骨折・脱臼</h3>
+            <p>交通事故によるケガにも対応。スポーツ選手の方も多く通院し、症状に合わせた丁寧な施術で早期の競技復帰・日常生活への回復をサポートします。</p>
+          </div>
+          <div class="svc-card">
+            <span class="num num-font">02</span>
+            <div class="svc-photo"><img src="images/oxygen-capsule.jpg" alt="疲労回復酸素カプセル" loading="lazy"></div>
+            <h3>酸素カプセル</h3>
+            <p>怪我を早く治すため、疲労回復酸素カプセルをご用意。高気圧・高濃度酸素により、回復と疲労軽減をサポートします。</p>
+          </div>
+          <div class="svc-card">
+            <span class="num num-font">03</span>
+            <div class="svc-photo"><img src="images/treatment-2.jpg" alt="産後ケアの施術風景" loading="lazy"></div>
+            <h3>産後ケア</h3>
+            <p>開業以来、助産師監修のもと産後ケアを実施。出産を終えたお母様のお身体に寄り添う施術を行っています。</p>
+          </div>
+        </div>
+      </section>
 
-  <section id="director">
-    <div class="wrap director">
-      <div class="director-photo reveal"><img src="images/director.jpg" alt="院長 渡辺 将" loading="lazy"></div>
-      <div class="director-text reveal">
-        <span class="role">院長</span>
-        <h3>渡辺 将</h3>
-        <p>一人ひとりのお身体の状態とお悩みに向き合い、捻挫・打撲・骨折といったケガから、スポーツによる筋損傷、産後のお身体のケアまで、丁寧な問診と施術を心がけています。</p>
-        <p>「痛みを我慢せず、まずは気軽にご相談ください」をモットーに、地域のみなさまに寄り添う接骨院を目指しています。</p>
-        <div class="director-sign">院長 渡辺 将</div>
-      </div>
-    </div>
-  </section>
+      <section id="first-visit">
+        <div class="first-visit-wrap reveal">
+          <span class="eyebrow">初めての方へ</span>
+          <p class="fv-quote">「まるや接骨院は、地域の皆様に愛される接骨院を目指しております。」</p>
+        </div>
+      </section>
 
-  <section id="news">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <span class="eyebrow">News</span>
-        <h2>お知らせ</h2>
-        <p>休診情報・移転情報など、最新のお知らせをこちらに掲載しています。</p>
-      </div>
-      <div class="news-list reveal">
-        <a class="news-item" href="#">
-          <time class="num-font">2026.05.14</time>
-          <span class="news-tag">未分類</span>
-          <span class="ttl">接骨院のお休みのご連絡 — 2026年5月25日(月)・26日(火)はお休みをいただきます。</span>
-          <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      <section id="stats">
+        <div class="stats-panel reveal">
+          <div class="stats-row">
+            <div class="stat">
+              <div class="v"><span class="num-font">1,505</span><span class="suffix">人+</span></div>
+              <div class="l">来院実績</div>
+            </div>
+            <div class="stat">
+              <div class="v"><span class="num-font">350</span><span class="suffix">件+</span></div>
+              <div class="l">施術実績</div>
+            </div>
+            <div class="stat">
+              <div class="v"><span class="num-font">450</span><span class="suffix">日+</span></div>
+              <div class="l">診療実施日数</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="director">
+        <div class="director reveal">
+          <div class="director-photo"><img src="images/director.jpg" alt="院長 渡辺 将" loading="lazy"></div>
+          <div class="director-text">
+            <span class="role">院長</span>
+            <h3>渡辺 将</h3>
+            <p>一人ひとりのお身体の状態とお悩みに向き合い、捻挫・打撲・骨折といったケガから、スポーツによる筋損傷、産後のお身体のケアまで、丁寧な問診と施術を心がけています。</p>
+            <p>「痛みを我慢せず、まずは気軽にご相談ください」をモットーに、地域のみなさまに寄り添う接骨院を目指しています。</p>
+            <div class="director-sign">院長 渡辺 将</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="news">
+        <div class="section-head reveal">
+          <span class="eyebrow">News</span>
+          <h2>お知らせ</h2>
+          <p>休診情報・移転情報など、最新のお知らせをこちらに掲載しています。</p>
+        </div>
+        <div class="news-list reveal">
+          <a class="news-item" href="#">
+            <time class="num-font">2026.05.14</time>
+            <span class="news-tag">未分類</span>
+            <span class="ttl">接骨院のお休みのご連絡 — 2026年5月25日(月)・26日(火)はお休みをいただきます。</span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+          <a class="news-item" href="#">
+            <time class="num-font">2025.12.21</time>
+            <span class="news-tag">未分類</span>
+            <span class="ttl">2026/4/6(日) 移転のお知らせ</span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <aside class="docs-rail">
+      <div class="rail-card">
+        <h4>お電話でのご予約</h4>
+        <a class="cta-btn" href="tel:0555246793">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          0555-24-6793
         </a>
-        <a class="news-item" href="#">
-          <time class="num-font">2025.12.21</time>
-          <span class="news-tag">未分類</span>
-          <span class="ttl">2026/4/6(日) 移転のお知らせ</span>
-          <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
+        <p class="rail-info">〒403-0008<br>山梨県富士吉田市下吉田東3-17-6</p>
+        <div class="rail-divider"></div>
+        <div class="rail-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span>診療時間は変更の場合があります。最新情報はお電話にてご確認ください。</span>
+        </div>
+        <div class="rail-sns">
+          <a href="https://www.instagram.com/maruya_company2001/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a href="https://www.facebook.com/show.watanabe.50/?locale=ja_JP" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+        </div>
       </div>
-    </div>
-  </section>
+    </aside>
+  </div>
 
   <section id="access">
     <div class="wrap">
@@ -577,6 +649,21 @@
     });
   }, { threshold: .5 });
   statEls.forEach(el => statIO.observe(el));
+
+  // scroll-spy for the left table-of-contents
+  const tocLinks = document.querySelectorAll('#toc-list a');
+  const tocSections = Array.from(tocLinks).map(a => document.getElementById(a.dataset.toc));
+  const tocIO = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const link = document.querySelector(`#toc-list a[data-toc="${entry.target.id}"]`);
+      if (!link) return;
+      if (entry.isIntersecting) {
+        tocLinks.forEach(a => a.classList.remove('active'));
+        link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+  tocSections.forEach(s => { if (s) tocIO.observe(s); });
 </script>
 
 </body>
