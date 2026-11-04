@@ -37,9 +37,11 @@
   .logo{display:flex;align-items:center;gap:14px;font-weight:700;font-size:17px;}
   .logo img{height:92px;width:auto;display:block;}
   .logo .address{
-    display:flex;flex-direction:column;font-weight:700;font-size:16px;line-height:1.5;
+    display:flex;align-items:center;gap:8px;font-weight:700;font-size:19px;line-height:1.35;
     color:var(--text);text-decoration:none;border-left:1px solid var(--border);padding-left:14px;
   }
+  .logo .address svg{flex:0 0 auto;width:20px;height:20px;color:var(--blue);}
+  .logo .address .addr-lines{display:flex;flex-direction:column;}
   .logo .address:hover{color:var(--blue);}
   nav{display:flex;gap:26px;font-size:14px;color:var(--text);}
   nav a{color:inherit;text-decoration:none;}
@@ -140,8 +142,11 @@
     <div class="logo">
       <img src="assets/logo.png" alt="まるや接骨院">
       <a class="address" href="https://www.google.com/maps/search/?api=1&query=%E5%B1%B1%E6%A2%A8%E7%9C%8C%E5%AF%8C%E5%A3%AB%E5%90%89%E7%94%B0%E5%B8%82%E4%B8%8B%E5%90%89%E7%94%B0%E6%9D%B13-17-6" target="_blank" rel="noopener">
-        <span>〒403-0008</span>
-        <span>山梨県富士吉田市下吉田東 3-17-6</span>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C7.58 2 4 5.58 4 10c0 5.25 7 11.5 7.3 11.77a1 1 0 0 0 1.4 0C13 21.5 20 15.25 20 10c0-4.42-3.58-8-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
+        <span class="addr-lines">
+          <span>〒403-0008</span>
+          <span>山梨県富士吉田市下吉田東 3-17-6</span>
+        </span>
       </a>
     </div>
     <nav aria-label="Primary Menu">
