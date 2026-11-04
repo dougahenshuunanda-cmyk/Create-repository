@@ -44,16 +44,15 @@
   .hero{position:relative;min-height:88vh;display:flex;align-items:center;overflow:hidden;background:#0d1f17;}
   .hero .imgwrap{
     position:absolute;inset:0;overflow:hidden;
-    opacity:0;animation:dropIn 1.2s cubic-bezier(.2,.75,.3,1) forwards 2.5s;
+    opacity:0;filter:blur(10px);animation:surfaceIn 1.6s cubic-bezier(.2,.8,.25,1) forwards 2.4s;
   }
   .hero .imgwrap img{
     position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 65%;
-    transform:scale(1.04);animation:kenburns 20s ease-in-out infinite alternate 3.7s;
+    transform:scale(1.04);animation:kenburns 20s ease-in-out infinite alternate 4s;
   }
-  @keyframes dropIn{
-    0%{opacity:0;transform:translateY(-70px) scale(1.02);}
-    60%{opacity:1;}
-    100%{opacity:1;transform:translateY(0) scale(1);}
+  @keyframes surfaceIn{
+    0%{opacity:0;filter:blur(10px);transform:translateY(36px) scale(1.06);}
+    100%{opacity:1;filter:blur(0);transform:translateY(0) scale(1.04);}
   }
   @keyframes kenburns{from{transform:scale(1.04);}to{transform:scale(1.13);}}
 
@@ -113,7 +112,7 @@
   </header>
 
   <section class="hero">
-    <div class="imgwrap"><img src="assets/storefront.png" alt="まるや接骨院 店舗外観"></div>
+    <div class="imgwrap"><img src="assets/storefront.webp" alt="まるや接骨院 店舗外観"></div>
     <div class="hero-left">
       <div class="eyebrow">山梨県富士吉田市 / まるや接骨院</div>
       <h1><span>老若男女に</span><span class="accent">愛される接骨院</span></h1>
