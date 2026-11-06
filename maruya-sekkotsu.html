@@ -81,8 +81,8 @@
     opacity:0;animation:logoFill 1s ease-out forwards 12.3s;
   }
   @keyframes logoFill{
-    0%{opacity:0;transform:translateY(10px) scale(.96);}
-    100%{opacity:1;transform:translateY(0) scale(1);}
+    0%{opacity:0;transform:translateX(-14px);}
+    100%{opacity:1;transform:translateX(0);}
   }
   .logo .address{
     display:flex;align-items:center;gap:8px;font-weight:700;font-size:19px;line-height:1.35;
@@ -135,7 +135,7 @@
   }
   .hero-left h1{
     font-family:"M PLUS Rounded 1c","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
-    font-size:clamp(36px,7.4vw,100px);line-height:1.35;color:var(--text);margin:0;font-weight:500;
+    font-size:clamp(32px,6.3vw,120px);line-height:1.35;color:var(--text);margin:0;font-weight:500;
     letter-spacing:.03em;margin-top:0;
   }
   .hero-left h1 span.line{display:block;}
@@ -156,9 +156,12 @@
     opacity:0;filter:blur(6px);animation:riseIn 1.1s ease forwards 12.4s;
   }
   .hero-buttons .btnframe{
-    flex:1 1 0;border-radius:999px;
+    position:relative;flex:1 1 0;border-radius:999px;
     box-shadow:0 8px 18px rgba(47,168,216,.3);
     transition:transform .15s ease,box-shadow .15s ease;
+  }
+  .hero-buttons .btnframe .search-icon{
+    position:absolute;top:-20px;left:4px;width:14px;height:14px;color:#1a1a1a;z-index:4;
   }
   .hero-buttons .btnframe:hover{transform:translateY(-2px);box-shadow:0 12px 22px rgba(47,168,216,.4);}
   .hero-buttons a{
@@ -247,9 +250,9 @@
       <div class="eyebrow">山梨県富士吉田市 / まるや接骨院</div>
       <h1 id="hero-heading"><span class="line accent">まるや接骨院</span></h1>
       <div class="hero-buttons">
-        <div class="btnframe"><a href="#access">予約</a></div>
-        <div class="btnframe"><a href="#access">予定表</a></div>
-        <div class="btnframe"><a href="#access">持ち物</a></div>
+        <div class="btnframe"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="20" y1="20" x2="15.5" y2="15.5"/></svg><a href="#access">予約</a></div>
+        <div class="btnframe"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="20" y1="20" x2="15.5" y2="15.5"/></svg><a href="#access">予定表</a></div>
+        <div class="btnframe"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="20" y1="20" x2="15.5" y2="15.5"/></svg><a href="#access">持ち物</a></div>
       </div>
     </div>
     <div class="hero-right">
