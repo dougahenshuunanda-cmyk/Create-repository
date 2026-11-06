@@ -78,11 +78,14 @@
   .logo{display:flex;align-items:center;gap:14px;font-weight:700;font-size:17px;}
   .logo img{
     height:92px;width:auto;display:block;transform-origin:50% 100%;position:relative;z-index:500;
-    opacity:0;animation:logoFill 1s ease-out forwards 12.3s;
+    opacity:0;animation:logoFill 1.3s cubic-bezier(.3,1.6,.4,1) forwards 12.3s;
   }
   @keyframes logoFill{
-    0%{opacity:0;transform:translateX(-14px);}
-    100%{opacity:1;transform:translateX(0);}
+    0%{opacity:0;transform:translateX(-26px) rotate(-8deg) scale(.9,1.1);}
+    55%{opacity:1;transform:translateX(3px) rotate(4deg) scale(1.08,.92);}
+    75%{transform:translateX(-2px) rotate(-2deg) scale(.96,1.05);}
+    90%{transform:translateX(1px) rotate(1deg) scale(1.02,.98);}
+    100%{opacity:1;transform:translateX(0) rotate(0) scale(1);}
   }
   .logo .address{
     display:flex;align-items:center;gap:8px;font-weight:700;font-size:19px;line-height:1.35;
@@ -161,7 +164,8 @@
     transition:transform .15s ease,box-shadow .15s ease;
   }
   .hero-buttons .btnframe .search-icon{
-    position:absolute;top:-30px;left:2px;width:26px;height:26px;color:#1a1a1a;z-index:4;stroke-width:3;
+    position:absolute;top:-16px;left:-14px;width:34px;height:34px;color:#1a1a1a;z-index:4;stroke-width:2.6;
+    transform:rotate(-40deg);
   }
   .hero-buttons .btnframe:hover{transform:translateY(-2px);box-shadow:0 12px 22px rgba(47,168,216,.4);}
   .hero-buttons a{
