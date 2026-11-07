@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>サンプルサイト | 動くヒーローページ</title>
+<style>
+  :root{
+    --navy:#0b2a52; --blue:#1b6fd6; --teal:#2bcf9e;
+    --text:#0b1b2b; --muted:#5b6b7c; --panel:#ffffff; --border:#e5eaf0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,-apple-system,sans-serif;color:var(--text);}
+  body{overflow-x:hidden;}
+
+  /* ---- loading screen ---- */
+  #loader{
+    position:fixed;inset:0;z-index:9999;
+    background:linear-gradient(135deg,var(--navy),var(--blue) 55%,var(--teal));
+    background-size:220% 220%;
+    animation:gradientMove 3.2s ease-in-out infinite, fadeOut .6s ease forwards 2.4s;
+    display:flex;align-items:center;justify-content:center;
+  }
+  #loader::after{
+    content:"";position:absolute;inset:0;
+    background-image:radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px);
+    background-size:3px 3px;opacity:.5;
+  }
+  #loader .mark{
+    color:#fff;font-size:15px;letter-spacing:.35em;font-weight:700;
+    opacity:.9;animation:pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes gradientMove{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+  }
+  @keyframes pulse{0%,100%{opacity:.5;}50%{opacity:1;}}
+  @keyframes fadeOut{to{opacity:0;visibility:hidden;pointer-events:none;}}
+
+  /* ---- header ---- */
+  header{
+    position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;padding:14px 28px;
+  }
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;}
+  .logo .dot{width:28px;height:28px;border-radius:50%;background:conic-gradient(var(--navy),var(--blue),var(--teal),var(--navy));}
+  nav{display:flex;gap:26px;font-size:14px;color:var(--text);}
+  nav a{color:inherit;text-decoration:none;}
+  nav a:hover{color:var(--blue);}
+
+  /* ---- hero ---- */
+  .hero{position:relative;min-height:88vh;display:flex;align-items:center;overflow:hidden;background:#0d1b2e;}
+  .hero img{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55;
+    animation:kenburns 14s ease-in-out infinite alternate;
+  }
+  @keyframes kenburns{from{transform:scale(1);}to{transform:scale(1.08);}}
+  .hero::before{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(100deg,rgba(11,42,82,.92) 10%,rgba(11,42,82,.45) 55%,transparent 85%);
+  }
+  .hero-content{position:relative;z-index:2;padding:0 6vw;max-width:680px;}
+  .hero-content h1{
+    font-size:clamp(32px,5vw,56px);line-height:1.3;color:#fff;margin:0 0 20px;font-weight:800;
+    opacity:0;animation:riseIn .8s ease forwards 2.6s;
+  }
+  .hero-content h1 span{display:block;}
+  .hero-content p{
+    color:#dce6f2;font-size:15px;line-height:1.8;margin:0;max-width:480px;
+    opacity:0;animation:riseIn .8s ease forwards 2.9s;
+  }
+  @keyframes riseIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---- floating quick menu ---- */
+  .quickmenu{
+    position:absolute;right:5vw;bottom:-40px;z-index:3;width:300px;
+    background:var(--navy);color:#fff;border-radius:14px;padding:18px;
+    box-shadow:0 20px 40px rgba(0,0,0,.25);
+    opacity:0;animation:riseIn .8s ease forwards 3.2s;
+  }
+  .quickmenu h2{font-size:13px;margin:0 0 12px;display:flex;justify-content:space-between;align-items:center;font-weight:700;}
+  .quickmenu .search{display:flex;gap:8px;margin-bottom:12px;}
+  .quickmenu .search input{flex:1;border:none;border-radius:8px;padding:9px 10px;font-size:12px;}
+  .quickmenu .search button{border:none;border-radius:8px;padding:9px 14px;background:var(--teal);color:#06281e;font-weight:700;font-size:12px;cursor:pointer;}
+  .quickmenu .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .quickmenu .grid button{
+    border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;
+    border-radius:8px;padding:9px 8px;font-size:11.5px;cursor:pointer;text-align:left;
+  }
+  .quickmenu .grid button:hover{background:rgba(255,255,255,.16);}
+
+  /* ---- content below ---- */
+  .section{padding:90px 6vw 60px;max-width:1100px;margin:0 auto;}
+  .section h2{font-size:24px;margin:0 0 12px;}
+  .section p{color:var(--muted);line-height:1.8;font-size:14px;max-width:640px;}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:28px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;}
+  .card .num{font-size:12px;color:var(--teal);font-weight:700;}
+  .card h3{font-size:15px;margin:8px 0;}
+  .card p{font-size:12.5px;color:var(--muted);margin:0;}
+  footer{padding:30px 6vw;color:var(--muted);font-size:12px;border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+  <div id="loader"><div class="mark">LOADING</div></div>
+
+  <header>
+    <div class="logo"><span class="dot"></span>サンプルサイト</div>
+    <nav>
+      <a href="#about">サイトについて</a>
+      <a href="#features">特長</a>
+      <a href="page.html">サンプルページ</a>
+      <a href="index.html">鉄道マップ</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=70" alt="">
+    <div class="hero-content">
+      <h1><span>つなぐ体験、</span><span>つづく価値、</span>はじまる。</h1>
+      <p>グラデーションのローディングからヒーローセクションへとつながる、動きのあるWebページのサンプルです。読み込み後にふわっと要素が現れる演出を加えています。</p>
+    </div>
+    <div class="quickmenu">
+      <h2>クイックメニュー <span>▾</span></h2>
+      <div class="search">
+        <input type="text" placeholder="キーワードを入力">
+        <button>検索</button>
+      </div>
+      <div class="grid">
+        <button>ご案内</button>
+        <button>最新情報</button>
+        <button>アクセス</button>
+        <button>お問い合わせ</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="about">
+    <h2>このページについて</h2>
+    <p>病院サイトなどでよく見られる「起動時のグラデーションローディング→ヒーロー画像→フローティングパネル」という演出パターンを再現したサンプルです。構成要素はテキストや画像を差し替えるだけで、別テーマにも流用できます。</p>
+  </section>
+
+  <section class="section" id="features">
+    <h2>特長</h2>
+    <div class="cards">
+      <div class="card"><div class="num">01</div><h3>アニメーションローディング</h3><p>グラデーションが流れる起動画面を自動で表示し、数秒でフェードアウトします。</p></div>
+      <div class="card"><div class="num">02</div><h3>ケンバーンズ効果</h3><p>背景画像がゆっくり拡大することで、静止画でも動きのある印象になります。</p></div>
+      <div class="card"><div class="num">03</div><h3>フローティングパネル</h3><p>検索やクイックリンクをまとめた浮遊パネルで、ユーザーの次の行動を誘導します。</p></div>
+    </div>
+  </section>
+
+  <footer>&copy; 2026 Sample Site. このページはデモ用に作成されたものです。</footer>
+
+</body>
+</html>
