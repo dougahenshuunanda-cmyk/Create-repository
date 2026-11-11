@@ -1,0 +1,521 @@
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>ひまわり鍼灸院 3Dモデル</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one full-screen 3D stage; a title card top-left, view controls docked at the bottom. */
+:root {
+  --sky-top: #b9cfe0;
+  --sky-bottom: #e9edea;
+  --panel: rgba(250, 250, 246, 0.88);
+  --fg: #23292b;
+  --muted: #5b6668;
+  --line: rgba(35, 41, 43, 0.16);
+  --accent: #1f5f8b;
+  --accent-fg: #ffffff;
+  --predict: #2f6fe0;
+  --font-display: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sky-top: #131c26; --sky-bottom: #2b3438;
+    --panel: rgba(24, 30, 33, 0.86); --fg: #e9ecea; --muted: #a3adae;
+    --line: rgba(233, 236, 234, 0.18); --accent: #7fbbe6; --accent-fg: #0f1a22;
+    --predict: #6ea0ff; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --sky-top: #131c26; --sky-bottom: #2b3438;
+  --panel: rgba(24, 30, 33, 0.86); --fg: #e9ecea; --muted: #a3adae;
+  --line: rgba(233, 236, 234, 0.18); --accent: #7fbbe6; --accent-fg: #0f1a22;
+  --predict: #6ea0ff; color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: linear-gradient(var(--sky-top), var(--sky-bottom));
+  color: var(--fg);
+  font-family: var(--font-display);
+  overflow: hidden;
+  position: relative;
+}
+#stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+#stage:active { cursor: grabbing; }
+
+.card {
+  position: absolute;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  left: max(16px, env(safe-area-inset-left, 0px));
+  max-width: min(330px, calc(100% - 32px));
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 14px 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.card h1 { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.3; text-wrap: balance; }
+.card .dims { margin: 4px 0 0; font-family: var(--font-data); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.card details { margin-top: 8px; font-size: 13px; line-height: 1.6; }
+.card summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+.card ul { margin: 6px 0 0; padding-left: 1.1em; }
+.card li b { font-weight: 700; }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--predict); margin-right: 4px; vertical-align: baseline; }
+
+.dock {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding-block: 10px calc(12px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 8px; align-items: center;
+  pointer-events: none;
+}
+.row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; pointer-events: auto; }
+.row button {
+  font: 700 13px/1 var(--font-display);
+  color: var(--fg);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 14px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.row button:hover { border-color: var(--accent); }
+.row button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.row button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.hint { font-size: 12px; color: var(--muted); margin: 0; pointer-events: none; text-align: center; }
+#err { position: absolute; inset: 40% 16px auto; text-align: center; font-size: 14px; }
+</style>
+
+<canvas id="stage" aria-label="建物の3Dモデル。ドラッグで回転できます"></canvas>
+
+<section class="card">
+  <h1>ひまわり鍼灸院 3Dモデル</h1>
+  <p class="dims">外壁 約13.9 × 22.7 m ・ 軒高 約2.9 m ・ 平屋</p>
+  <details>
+    <summary>写真から作った所 / 予測した所</summary>
+    <ul>
+      <li><b>写真どおり</b>：屋根の形（航空写真）、東面の窓・勝手口・室外機・看板、北西の角と給湯器</li>
+      <li><span class="swatch"></span><b>予測</b>：南面、西面の奥の窓、北面の東寄り、玄関ドア</li>
+      <li>寸法は航空写真の10mスケールから計算</li>
+    </ul>
+  </details>
+</section>
+
+<div class="dock">
+  <div class="row" role="group" aria-label="視点">
+    <button type="button" id="v-ne" data-view="ne">北東</button>
+    <button type="button" id="v-e" data-view="e">東（駐車場）</button>
+    <button type="button" id="v-nw" data-view="nw">北西</button>
+    <button type="button" id="v-sw" data-view="sw">南西（予測）</button>
+    <button type="button" id="v-top" data-view="top">真上</button>
+  </div>
+  <div class="row" role="group" aria-label="表示">
+    <button type="button" id="t-predict" aria-pressed="false">予測部分を色分け</button>
+    <button type="button" id="t-context" aria-pressed="true">周辺を表示</button>
+  </div>
+  <p class="hint">ドラッグで回転 ・ ピンチ/ホイールで拡大 ・ 2本指で移動</p>
+</div>
+<p id="err" hidden>3D表示を読み込めませんでした。通信環境を確認して再読み込みしてください。</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  if (!window.THREE) { document.getElementById('err').hidden = false; return; }
+  const T = THREE;
+  const canvas = document.getElementById('stage');
+  const renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = T.PCFSoftShadowMap;
+
+  const scene = new T.Scene();
+  const camera = new T.PerspectiveCamera(40, 1, 0.5, 400);
+
+  scene.add(new T.HemisphereLight(0xffffff, 0x8a8f86, 0.78));
+  const sun = new T.DirectionalLight(0xfff4e2, 0.75);
+  sun.position.set(22, 34, 14);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, { left: -32, right: 32, top: 32, bottom: -32, near: 1, far: 120 });
+  sun.shadow.bias = -0.0006;
+  scene.add(sun);
+
+  // Model space: x = east, z = south, y = up, metres. Origin = NW corner of the roof outline.
+  const world = new T.Group();
+  world.position.set(-7.6, 0, -12);
+  scene.add(world);
+  const context = new T.Group();   // surroundings (toggle)
+  world.add(context);
+  const predicted = [];            // materials of guessed parts
+
+  /* ---------- canvas textures ---------- */
+  function canvasTex(w, h, draw, repeat) {
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    draw(c.getContext('2d'), w, h);
+    const t = new T.CanvasTexture(c);
+    if (repeat) { t.wrapS = t.wrapT = T.RepeatWrapping; }
+    t.anisotropy = 4;
+    return t;
+  }
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const pick = a => a[Math.floor(rnd() * a.length)];
+
+  const brickTex = canvasTex(256, 256, (g, w, h) => {      // 1.2 m square of siding
+    g.fillStyle = '#b3aa90'; g.fillRect(0, 0, w, h);
+    const cols = ['#d4c9a8', '#cbc19f', '#c3bd9f', '#d9d0b3', '#bdb899', '#cfc6a2', '#c6c4a8'];
+    for (let y = 0; y < h; y += 16) {
+      let x = -Math.floor(rnd() * 40);
+      while (x < w) {
+        const len = 28 + Math.floor(rnd() * 44);
+        g.fillStyle = pick(cols);
+        g.fillRect(x + 1, y + 1, len - 2, 14);
+        x += len;
+      }
+    }
+  }, true);
+
+  const tileTex = canvasTex(256, 256, (g, w, h) => {       // 1.6 m square of barrel tiles
+    const cols = ['#b4553b', '#c56a4a', '#d48a68', '#a5452f', '#dca284', '#bd5e42', '#c97a58'];
+    const n = 8, s = w / n;
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+      g.fillStyle = pick(cols); g.fillRect(i * s, j * s, s, s);
+      const gr = g.createLinearGradient(i * s, 0, (i + 1) * s, 0);
+      gr.addColorStop(0, 'rgba(0,0,0,0.28)'); gr.addColorStop(0.5, 'rgba(255,255,255,0.14)'); gr.addColorStop(1, 'rgba(0,0,0,0.28)');
+      g.fillStyle = gr; g.fillRect(i * s, j * s, s, s);
+      g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(i * s, j * s, s, 2);
+    }
+  }, true);
+
+  const latticeTex = canvasTex(64, 64, (g, w, h) => {
+    g.clearRect(0, 0, w, h); g.strokeStyle = '#f2f1ec'; g.lineWidth = 5;
+    g.beginPath(); g.moveTo(0, 0); g.lineTo(w, h); g.moveTo(w, 0); g.lineTo(0, h); g.stroke();
+  }, true);
+
+  const fenceTex = canvasTex(64, 128, (g, w, h) => {
+    g.clearRect(0, 0, w, h); g.strokeStyle = '#f4f4f0'; g.lineWidth = 3;
+    for (let x = 0; x <= w; x += 16) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); }
+    g.lineWidth = 4;
+    for (const y of [3, 22, 64, 106, 125]) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
+  }, true);
+
+  const signTex = canvasTex(256, 200, (g, w, h) => {
+    g.fillStyle = '#98a2b0'; g.fillRect(0, 0, w, h);
+    g.fillStyle = '#1d3f8f'; g.textAlign = 'center';
+    g.font = 'bold 34px "Hiragino Sans","Yu Gothic","Noto Sans JP",sans-serif';
+    g.fillText('ひまわり鍼灸院', w / 2, 60);
+    g.font = 'bold 24px "Hiragino Sans","Yu Gothic","Noto Sans JP",sans-serif';
+    g.fillText('● はり ● きゅう', w / 2, 105);
+  });
+
+  /* ---------- materials ---------- */
+  const M = {
+    wall: new T.MeshLambertMaterial({ map: brickTex, side: T.DoubleSide }),
+    base: new T.MeshLambertMaterial({ color: 0xc9c9c4, side: T.DoubleSide }),
+    roof: new T.MeshLambertMaterial({ map: tileTex, side: T.DoubleSide }),
+    white: new T.MeshLambertMaterial({ color: 0xeeeeea }),
+    frame: new T.MeshLambertMaterial({ color: 0xe2e0d8 }),
+    glass: new T.MeshPhongMaterial({ color: 0x55707c, shininess: 90, specular: 0x99aabb }),
+    curtain: new T.MeshPhongMaterial({ color: 0x4f8f97, shininess: 60, specular: 0x778899 }),
+    dark: new T.MeshLambertMaterial({ color: 0x2c2f33 }),
+    asphalt: new T.MeshLambertMaterial({ color: 0x55585c }),
+    concrete: new T.MeshLambertMaterial({ color: 0x8e8f8b }),
+    grass: new T.MeshLambertMaterial({ color: 0x77805f }),
+    green: new T.MeshLambertMaterial({ color: 0x4f7040 }),
+    flower: new T.MeshLambertMaterial({ color: 0xe07a2e }),
+    rust: new T.MeshLambertMaterial({ color: 0x7a4a33 }),
+    block: new T.MeshLambertMaterial({ color: 0xb4b2aa }),
+    blockDark: new T.MeshLambertMaterial({ color: 0x6d7074 }),
+    carWhite: new T.MeshPhongMaterial({ color: 0xf1f1ee, shininess: 70 }),
+    carSilver: new T.MeshPhongMaterial({ color: 0xb9bcc0, shininess: 70 }),
+    sign: new T.MeshLambertMaterial({ map: signTex })
+  };
+
+  const shadow = m => { m.castShadow = true; m.receiveShadow = true; return m; };
+  const box = (w, h, d, mat) => shadow(new T.Mesh(new T.BoxGeometry(w, h, d), mat));
+  function markPredicted(obj) {
+    obj.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); predicted.push(o.material); } });
+    return obj;
+  }
+
+  /* ---------- outlines (from the aerial photo, 33 px = 1 m) ---------- */
+  const EAVE = [[0, 0], [15.3, 0], [15.3, 19.8], [13.2, 19.8], [13.2, 24.1], [4.5, 24.1], [4.5, 22.4], [0, 22.4]];
+  const WALL = [[0.7, 0.7], [14.6, 0.7], [14.6, 19.1], [12.5, 19.1], [12.5, 23.4], [5.2, 23.4], [5.2, 21.7], [0.7, 21.7]];
+  const WALL_H = 2.85, SOFFIT = 0.18, SLOPE = 0.3;
+  const PREDICTED_WALLS = [3, 4, 5, 6];
+
+  function edge(i) {
+    const a = WALL[i], b = WALL[(i + 1) % WALL.length];
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const d = [(b[0] - a[0]) / len, (b[1] - a[1]) / len];
+    return { a, b, len, d, n: [d[1], -d[0]] };
+  }
+  // put an object (front = local +z) on wall edge i, t metres from the edge start
+  function place(obj, i, t, y, out) {
+    const e = edge(i); out = out || 0;
+    obj.position.set(e.a[0] + e.d[0] * t + e.n[0] * out, y, e.a[1] + e.d[1] * t + e.n[1] * out);
+    obj.rotation.y = Math.atan2(e.n[0], e.n[1]);
+    world.add(obj);
+    return obj;
+  }
+
+  /* ---------- walls + foundation ---------- */
+  WALL.forEach((_, i) => {
+    const e = edge(i);
+    const quad = (y0, y1, out, mat, uv) => {
+      const g = new T.BufferGeometry();
+      const p = (t, y) => [e.a[0] + e.d[0] * t + e.n[0] * out, y, e.a[1] + e.d[1] * t + e.n[1] * out];
+      g.setAttribute('position', new T.Float32BufferAttribute([...p(0, y0), ...p(e.len, y0), ...p(e.len, y1), ...p(0, y1)], 3));
+      g.setAttribute('uv', new T.Float32BufferAttribute([0, y0 / 1.2, e.len / 1.2, y0 / 1.2, e.len / 1.2, y1 / 1.2, 0, y1 / 1.2], 2));
+      g.setIndex([0, 2, 1, 0, 3, 2]); g.computeVertexNormals();
+      const m = shadow(new T.Mesh(g, mat)); world.add(m); return m;
+    };
+    const w = quad(0, WALL_H, 0, M.wall);
+    quad(0, 0.4, 0.02, M.base);
+    if (PREDICTED_WALLS.includes(i)) markPredicted(w);
+  });
+
+  /* ---------- eave slab (white soffit + fascia) ---------- */
+  function shapeOf(poly) {
+    const s = new T.Shape();
+    poly.forEach((p, i) => i ? s.lineTo(p[0], p[1]) : s.moveTo(p[0], p[1]));
+    s.closePath(); return s;
+  }
+  const soffit = shadow(new T.Mesh(new T.ExtrudeGeometry(shapeOf(EAVE), { depth: SOFFIT, bevelEnabled: false }), M.white));
+  soffit.rotation.x = Math.PI / 2; soffit.position.y = WALL_H + SOFFIT;
+  world.add(soffit);
+
+  /* ---------- hip roof: height = slope × distance to the eave line ---------- */
+  (function buildRoof() {
+    const inside = (x, z) => {
+      let c = false;
+      for (let i = 0, j = EAVE.length - 1; i < EAVE.length; j = i++) {
+        const [xi, zi] = EAVE[i], [xj, zj] = EAVE[j];
+        if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) c = !c;
+      }
+      return c;
+    };
+    const dist = (x, z) => {
+      let m = 1e9;
+      for (let i = 0; i < EAVE.length; i++) {
+        const [ax, az] = EAVE[i], [bx, bz] = EAVE[(i + 1) % EAVE.length];
+        const dx = bx - ax, dz = bz - az;
+        const t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / (dx * dx + dz * dz)));
+        m = Math.min(m, Math.hypot(x - ax - t * dx, z - az - t * dz));
+      }
+      return m;
+    };
+    const S = 0.1, NX = 153, NZ = 241, pos = [], uv = [], idx = [];
+    for (let j = 0; j <= NZ; j++) for (let i = 0; i <= NX; i++) {
+      const x = i * S, z = j * S;
+      pos.push(x, WALL_H + SOFFIT + 0.06 + SLOPE * dist(x, z), z);
+      uv.push(x / 1.6, z / 1.6);
+    }
+    const id = (i, j) => j * (NX + 1) + i;
+    for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) {
+      if (!inside((i + 0.5) * S, (j + 0.5) * S)) continue;
+      const a = id(i, j), b = id(i + 1, j), c = id(i, j + 1), d = id(i + 1, j + 1);
+      idx.push(a, c, b, b, c, d);
+    }
+    const g = new T.BufferGeometry();
+    g.setAttribute('position', new T.Float32BufferAttribute(pos, 3));
+    g.setAttribute('uv', new T.Float32BufferAttribute(uv, 2));
+    g.setIndex(idx); g.computeVertexNormals();
+    world.add(shadow(new T.Mesh(g, M.roof)));
+    // dark edge where the tiles meet the gutter
+    const lip = shadow(new T.Mesh(new T.ExtrudeGeometry(shapeOf(EAVE), { depth: 0.06, bevelEnabled: false }), M.dark));
+    lip.rotation.x = Math.PI / 2; lip.position.y = WALL_H + SOFFIT + 0.06; lip.scale.set(0.995, 0.995, 1); lip.position.x = 0.04; lip.position.z = 0.06;
+    world.add(lip);
+  })();
+
+  /* ---------- windows / doors ---------- */
+  function windowUnit(w, h, o) {
+    o = o || {};
+    const g = new T.Group();
+    g.add(box(w + 0.12, h + 0.12, 0.08, M.frame));
+    const glass = new T.Mesh(new T.PlaneGeometry(w, h), o.curtain ? M.curtain : M.glass);
+    glass.position.z = 0.045; g.add(glass);
+    const n = o.panels || 2;
+    for (let i = 1; i < n; i++) { const b = box(0.05, h, 0.03, M.frame); b.position.set(-w / 2 + (w / n) * i, 0, 0.055); g.add(b); }
+    if (o.lattice) {
+      const t = latticeTex.clone(); t.needsUpdate = true; t.repeat.set(w / 0.3, h / 0.3);
+      const l = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshLambertMaterial({ map: t, transparent: true, alphaTest: 0.4, side: T.DoubleSide }));
+      l.position.z = 0.1; g.add(l);
+      const f = box(w + 0.08, 0.05, 0.03, M.white); f.position.set(0, h / 2, 0.1); g.add(f);
+      const f2 = f.clone(); f2.position.y = -h / 2; g.add(f2);
+    }
+    return g;
+  }
+  const pipe = (h) => shadow(new T.Mesh(new T.CylinderGeometry(0.04, 0.04, h, 8), M.white));
+
+  // East face (edge 1, t from the north corner) — from the street-view photos
+  place(windowUnit(1.7, 1.2), 1, 16.35, 1.6, 0.02);                       // window by the sign
+  place(windowUnit(2.6, 2.0, { panels: 4, curtain: true }), 1, 11.3, 1.45, 0.02); // big 4-panel window
+  place(windowUnit(1.7, 1.2), 1, 3.95, 1.7, 0.02);
+  place(windowUnit(0.75, 1.9, { panels: 1, lattice: true }), 1, 2.25, 1.35, 0.02); // back door with grille
+  const sign = new T.Mesh(new T.PlaneGeometry(0.75, 0.6), M.sign); place(sign, 1, 17.85, 1.55, 0.03);
+  [0.12, 13.1, 18.3].forEach(t => place(pipe(WALL_H), 1, t, WALL_H / 2, 0.07));
+  function acUnit() {
+    const g = new T.Group(); const b = box(0.8, 0.55, 0.3, M.white); g.add(b);
+    const fan = new T.Mesh(new T.CircleGeometry(0.2, 20), M.dark); fan.position.set(-0.12, 0, 0.155); g.add(fan);
+    return g;
+  }
+  place(acUnit(), 1, 13.7, 0.36, 0.3);
+  const bed = new T.Group();
+  const hedge = box(3.2, 0.45, 0.6, M.green); bed.add(hedge);
+  for (let i = 0; i < 9; i++) { const f = box(0.12, 0.1, 0.12, M.flower); f.position.set(-1.4 + i * 0.35 + rnd() * 0.1, 0.25, 0.2 + rnd() * 0.15); bed.add(f); }
+  place(bed, 1, 16.2, 0.25, 0.4);
+
+  // North face (edge 0, t from the west corner)
+  const heater = new T.Group();
+  const tank = box(0.65, 1.85, 0.6, M.white); heater.add(tank);
+  const dial = new T.Mesh(new T.CircleGeometry(0.07, 16), M.dark); dial.position.set(0.1, 0.6, 0.305); heater.add(dial);
+  place(heater, 0, 0.75, 0.93, 0.35);                                   // water heater at the NW corner
+  place(windowUnit(0.7, 0.9, { panels: 1, lattice: true }), 0, 6.0, 1.9, 0.02);
+  markPredicted(place(windowUnit(0.7, 0.9, { panels: 1, lattice: true }), 0, 10.6, 1.9, 0.02));
+  place(pipe(WALL_H), 0, 0.12, WALL_H / 2, 0.07);
+
+  // West face (edge 7, t from the south corner; length 21 m)
+  place(windowUnit(1.4, 1.3, { lattice: true }), 7, 19.1, 1.65, 0.02);  // seen in the corner photo
+  place(windowUnit(1.4, 1.3), 7, 15.6, 1.65, 0.02);
+  const meter = box(0.3, 0.4, 0.12, M.frame); place(meter, 7, 20.4, 1.7, 0.06);
+  [11.6, 8.0, 4.6, 1.6].forEach(t => markPredicted(place(windowUnit(1.4, 1.3), 7, t, 1.65, 0.02)));
+
+  // South faces + entrance — not visible in any photo
+  markPredicted(place(windowUnit(0.7, 0.9, { panels: 1 }), 4, 3.6, 1.85, 0.02));
+  markPredicted(place(windowUnit(1.4, 1.1), 6, 2.2, 1.7, 0.02));
+  markPredicted(place(windowUnit(1.7, 2.05, { panels: 2 }), 3, 2.3, 1.03, 0.02));   // entrance sliding door
+  const canopy = shadow(new T.Mesh(new T.BoxGeometry(2.7, 0.1, 4.6), M.roof)); // small tiled roof over the entrance
+  canopy.position.set(13.85, 2.62, 21.35); canopy.rotation.z = -0.16; world.add(canopy);
+  const post = box(0.3, 0.9, 0.2, M.white); post.position.set(13.4, 0.45, 19.5); world.add(post);  // mailbox
+
+  /* ---------- surroundings ---------- */
+  const LOW = -1.4;   // north road and west lane sit below the plot (retaining wall in the photo)
+  const plot = shadow(new T.Mesh(new T.BoxGeometry(26.6, 2.2, 30.6), M.concrete));
+  plot.position.set(-0.6 + 13.3, -1.1, -0.6 + 15.3); context.add(plot);
+  const top = new T.Mesh(new T.PlaneGeometry(26.6, 30.6), M.asphalt);
+  top.rotation.x = -Math.PI / 2; top.position.set(12.7, 0.01, 14.7); top.receiveShadow = true; context.add(top);
+  const low = shadow(new T.Mesh(new T.BoxGeometry(34, 0.8, 35.5), M.grass));
+  low.position.set(9, LOW - 0.4, 12.25); context.add(low);
+  const ramp = new T.Shape();
+  ramp.moveTo(-8, LOW); ramp.lineTo(-0.6, LOW); ramp.lineTo(21, 0); ramp.lineTo(26, 0); ramp.lineTo(26, LOW - 0.8); ramp.lineTo(-8, LOW - 0.8); ramp.closePath();
+  const road = shadow(new T.Mesh(new T.ExtrudeGeometry(ramp, { depth: 4.9, bevelEnabled: false }), M.asphalt));
+  road.position.z = -5.5; context.add(road);
+
+  function fence(x0, z0, x1, z1) {
+    const len = Math.hypot(x1 - x0, z1 - z0), t = fenceTex.clone(); t.needsUpdate = true; t.repeat.set(len / 0.5, 1);
+    const m = new T.Mesh(new T.PlaneGeometry(len, 1), new T.MeshLambertMaterial({ map: t, transparent: true, alphaTest: 0.35, side: T.DoubleSide }));
+    m.position.set((x0 + x1) / 2, 0.5, (z0 + z1) / 2); m.rotation.y = -Math.atan2(z1 - z0, x1 - x0); context.add(m);
+    for (let d = 0; d <= len + 0.01; d += 2) {
+      const p = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 1.05, 6), M.white);
+      p.position.set(x0 + (x1 - x0) * d / len, 0.52, z0 + (z1 - z0) * d / len); context.add(p);
+    }
+  }
+  fence(-0.45, -0.45, 20.6, -0.45);   // along the north retaining wall
+  fence(-0.45, -0.45, -0.45, 22);     // west side
+  fence(20.6, 1.5, 20.6, 15.5);       // between the car park and the east road
+
+  function car(mat, x, z) {
+    const g = new T.Group();
+    const body = box(1.48, 0.7, 3.4, mat); body.position.y = 0.6; g.add(body);
+    const cab = box(1.36, 0.6, 2.1, M.dark); cab.position.set(0, 1.2, -0.25); g.add(cab);
+    const roofP = box(1.4, 0.06, 2.14, mat); roofP.position.set(0, 1.53, -0.25); g.add(roofP);
+    [[-0.72, 1.1], [0.72, 1.1], [-0.72, -1.1], [0.72, -1.1]].forEach(([wx, wz]) => {
+      const w = new T.Mesh(new T.CylinderGeometry(0.28, 0.28, 0.16, 14), M.dark);
+      w.rotation.z = Math.PI / 2; w.position.set(wx, 0.28, wz); g.add(w);
+    });
+    g.position.set(x, 0, z); context.add(g);
+  }
+  car(M.carWhite, 17.3, 5.2); car(M.carSilver, 17.3, 9.6);
+
+  const pole = shadow(new T.Mesh(new T.CylinderGeometry(0.06, 0.06, 7.6, 8), M.rust));
+  pole.position.set(-0.9, LOW + 3.8, -0.9); context.add(pole);
+
+  const south = box(15.5, 5.5, 4.6, M.blockDark); south.position.set(8.2, 2.75, 27.6); context.add(south);   // flat-roofed neighbour
+  const west = box(5.2, 7.2, 9, M.block); west.position.set(-5.2, LOW + 3.6, 8.5); context.add(west);        // 2-storey neighbour
+
+  /* ---------- camera: drag to orbit, pinch / wheel to zoom, two fingers to pan ---------- */
+  const VIEWS = {
+    ne: [2.35, 1.08, 44, 0], e: [Math.PI / 2, 1.3, 38, 0], nw: [-2.35, 1.12, 42, 0],
+    sw: [-0.8, 1.05, 44, 0], top: [0.001, 0.02, 52, 0]
+  };
+  const cam = { th: 2.35, ph: 1.08, r: 44, tx: 0, ty: 1.5, tz: 0 };
+  let goal = null, auto = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  function applyCamera() {
+    const s = Math.sin(cam.ph);
+    camera.position.set(cam.tx + cam.r * s * Math.sin(cam.th), cam.ty + cam.r * Math.cos(cam.ph), cam.tz + cam.r * s * Math.cos(cam.th));
+    camera.lookAt(cam.tx, cam.ty, cam.tz);
+  }
+  let rScale = 1;   // portrait phones need the camera further back
+  const pts = new Map(); let pinch = null;
+  const stop = () => { auto = false; goal = null; };
+  canvas.addEventListener('pointerdown', e => { canvas.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); pinch = null; stop(); });
+  canvas.addEventListener('pointermove', e => {
+    const p = pts.get(e.pointerId); if (!p) return;
+    const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+    if (pts.size === 1) {
+      if (e.shiftKey || e.buttons === 2) pan(dx, dy);
+      else { cam.th -= dx * 0.006; cam.ph = clamp(cam.ph - dy * 0.005, 0.02, 1.52); }
+    } else if (pts.size === 2) {
+      const [a, b] = [...pts.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y), cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2;
+      if (pinch) { cam.r = clamp(cam.r * pinch.d / d, 8, 130); pan(cx - pinch.cx, cy - pinch.cy); }
+      pinch = { d, cx, cy };
+    }
+  });
+  const up = e => { pts.delete(e.pointerId); pinch = null; };
+  canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+  canvas.addEventListener('wheel', e => { e.preventDefault(); stop(); cam.r = clamp(cam.r * Math.exp(e.deltaY * 0.001), 8, 110); }, { passive: false });
+  function pan(dx, dy) {
+    const k = cam.r * 0.0016;
+    cam.tx += (-dx * Math.cos(cam.th) - dy * Math.sin(cam.th)) * k;
+    cam.tz += (dx * Math.sin(cam.th) - dy * Math.cos(cam.th)) * k;
+    cam.tx = clamp(cam.tx, -20, 20); cam.tz = clamp(cam.tz, -20, 20);
+  }
+
+  document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => {
+    const v = VIEWS[b.dataset.view]; auto = false;
+    let th = v[0]; while (th - cam.th > Math.PI) th -= 2 * Math.PI; while (th - cam.th < -Math.PI) th += 2 * Math.PI;
+    goal = { th, ph: v[1], r: v[2] * rScale, tx: 0, tz: 0 };
+  }));
+  const tp = document.getElementById('t-predict'), tc = document.getElementById('t-context');
+  tp.addEventListener('click', () => {
+    const on = tp.getAttribute('aria-pressed') !== 'true'; tp.setAttribute('aria-pressed', on);
+    predicted.forEach(m => { if (m.emissive) m.emissive.setHex(on ? 0x1d4fc4 : 0x000000); });
+  });
+  tc.addEventListener('click', () => {
+    const on = tc.getAttribute('aria-pressed') !== 'true'; tc.setAttribute('aria-pressed', on); context.visible = on;
+  });
+
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.fov = w < h ? 58 : 40;   // wider lens on a portrait phone so the whole building fits
+    camera.updateProjectionMatrix();
+    const k = w < h * 0.8 ? 1.55 : 1;
+    cam.r *= k / rScale; rScale = k;
+  }
+  window.addEventListener('resize', resize); resize();
+
+  (function loop() {
+    requestAnimationFrame(loop);
+    if (auto) cam.th += 0.0018;
+    if (goal) {
+      let done = true;
+      for (const k in goal) { const d = goal[k] - cam[k]; cam[k] += d * 0.12; if (Math.abs(d) > 0.002) done = false; }
+      if (done) goal = null;
+    }
+    applyCamera();
+    renderer.render(scene, camera);
+  })();
+})();
+</script>
