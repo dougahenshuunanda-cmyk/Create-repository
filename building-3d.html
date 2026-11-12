@@ -738,10 +738,16 @@ body {
     f(9.0, 0.8, 9.6, 1.4, 0.9, W); f(9.0, 1.6, 9.5, 3.2, 0.8, 0xd9d9d4);
     // 厨房: counters, island, fridge
     f(10.4, 0.85, 14.4, 1.45, 0.85, STEEL); f(10.35, 1.45, 10.95, 3.6, 0.85, STEEL); f(11.9, 2.9, 13.6, 3.8, 0.85, 0xd5d0c4); f(10.35, 3.65, 11.0, 4.35, 1.45, 0xe8e8ea);
-    // 居間: three dining tables with chairs, sofas around a low table, TV
-    [6.9, 9.6, 12.3].forEach(x => {
-      f(x, 8.0, x + 1.6, 8.9, 0.06, WOOD, 0.66); f(x + 0.7, 8.35, x + 0.9, 8.55, 0.66, WOOD);
-      [x + 0.2, x + 0.98].forEach(cx => { f(cx, 7.45, cx + 0.42, 7.87, 0.44, CHAIR); f(cx, 9.03, cx + 0.42, 9.45, 0.44, CHAIR); });
+    // 居間: dining tables (below), sofas around a low table, TV
+    // two long tables in the open north half, 10 seats each (4 per side + 1 at each end), 1.6 m aisles around them
+    [8.1, 11.6].forEach(x => {
+      const z0 = 7.9, z1 = 10.7;
+      f(x, z0, x + 0.9, z1, 0.06, WOOD, 0.66); f(x + 0.35, z0 + 0.4, x + 0.55, z0 + 0.6, 0.66, WOOD); f(x + 0.35, z1 - 0.6, x + 0.55, z1 - 0.4, 0.66, WOOD);
+      for (let k = 0; k < 4; k++) {
+        const cz = z0 + 0.35 + k * 0.7 - 0.21;
+        f(x - 0.47, cz, x - 0.05, cz + 0.42, 0.44, CHAIR); f(x + 0.95, cz, x + 1.37, cz + 0.42, 0.44, CHAIR);
+      }
+      f(x + 0.24, z0 - 0.47, x + 0.66, z0 - 0.05, 0.44, CHAIR); f(x + 0.24, z1 + 0.05, x + 0.66, z1 + 0.47, 0.44, CHAIR);
     });
     f(8.4, 12.0, 13.7, 15.0, 0.02, 0xcdbfa6);
     f(9.9, 12.2, 12.1, 13.1, 0.42, SOFA); f(9.9, 12.2, 12.1, 12.45, 0.8, SOFA);
