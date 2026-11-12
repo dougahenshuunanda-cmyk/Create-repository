@@ -739,8 +739,8 @@ body {
     // 厨房: counters, island, fridge
     f(10.4, 0.85, 14.4, 1.45, 0.85, STEEL); f(10.35, 1.45, 10.95, 3.6, 0.85, STEEL); f(11.9, 2.9, 13.6, 3.8, 0.85, 0xd5d0c4); f(10.35, 3.65, 11.0, 4.35, 1.45, 0xe8e8ea);
     // 居間: dining tables (below), sofas around a low table, TV
-    // two long tables in the open north half, 10 seats each (4 per side + 1 at each end), 1.6 m aisles around them
-    [8.1, 11.6].forEach(x => {
+    // one long table at the centre of the living room, 10 seats (4 per side + 1 at each end)
+    [9.85].forEach(x => {
       const z0 = 7.9, z1 = 10.7;
       f(x, z0, x + 0.9, z1, 0.06, WOOD, 0.66); f(x + 0.35, z0 + 0.4, x + 0.55, z0 + 0.6, 0.66, WOOD); f(x + 0.35, z1 - 0.6, x + 0.55, z1 - 0.4, 0.66, WOOD);
       for (let k = 0; k < 4; k++) {
